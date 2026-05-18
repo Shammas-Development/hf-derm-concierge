@@ -109,14 +109,14 @@ export function IntakeStep({
         label="Skin type"
         hint="The Fitzpatrick scale describes how skin responds to sun. Tap what looks closest — or pick Not sure."
       >
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
           {FITZPATRICK.map((f) => (
             <button
               key={f.type}
               type="button"
               onClick={() => onChange({ ...value, fitzpatrick: f.type })}
               className={cn(
-                "group flex flex-col items-center gap-1.5 rounded-xl border p-2 transition",
+                "group flex flex-col items-center gap-1 sm:gap-1.5 rounded-xl border p-1.5 sm:p-2 transition",
                 value.fitzpatrick === f.type
                   ? "border-[#003DA5] bg-[#EEF2FB] shadow-sm"
                   : "border-border hover:border-[#003DA5]/40",
@@ -124,7 +124,7 @@ export function IntakeStep({
               aria-label={`Type ${f.type} — ${f.label}`}
             >
               <span
-                className="h-9 w-9 rounded-full ring-1 ring-black/5"
+                className="h-7 w-7 sm:h-9 sm:w-9 rounded-full ring-1 ring-black/5"
                 style={{ background: f.swatch }}
               />
               <span className="text-[10px] font-medium text-foreground/80">
