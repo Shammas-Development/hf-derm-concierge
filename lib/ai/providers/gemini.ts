@@ -18,18 +18,32 @@ interface GeminiBody {
   safetySettings: { category: string; threshold: string }[];
 }
 
+interface GeminiResponseChunk {
+  candidates?: Array<{
+    content?: { parts?: { text?: string }[] };
+    finishReason?: string;
+    safetyRatings?: Array<{ category: string; probability: string; blocked?: boolean }>;
+  }>;
+  promptFeedback?: {
+    blockReason?: string;
+    safetyRatings?: Array<{ category: string; probability: string }>;
+  };
+  error?: { message?: string };
+}
+
+// Educational medical product — Gemini's default filters falsely block
+// legitimate dermatology questions. BLOCK_NONE is the correct policy here.
 const RELAXED_SAFETY = [
-  // Medical/dermatology descriptions can trip Gemini's default filters.
-  // BLOCK_NONE is appropriate here — content is educational, audience is patients seeking care.
   "HARM_CATEGORY_HARASSMENT",
   "HARM_CATEGORY_HATE_SPEECH",
   "HARM_CATEGORY_SEXUALLY_EXPLICIT",
   "HARM_CATEGORY_DANGEROUS_CONTENT",
-].map((category) => ({ category, threshold: "BLOCK_ONLY_HIGH" }));
+  "HARM_CATEGORY_CIVIC_INTEGRITY",
+].map((category) => ({ category, threshold: "BLOCK_NONE" }));
 
 export function createGeminiProvider(): ChatProvider {
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+  const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
   const baseUrl =
     process.env.GEMINI_BASE_URL ??
     "https://generativelanguage.googleapis.com/v1beta";
@@ -97,6 +111,9 @@ export function createGeminiProvider(): ChatProvider {
       const decoder = new TextDecoder();
       let buffer = "";
       let stopReason: string | null = null;
+      let emittedAnyText = false;
+      let lastBlockReason: string | null = null;
+      let lastFinishReason: string | null = null;
 
       while (true) {
         const { value, done } = await reader.read();
@@ -114,13 +131,7 @@ export function createGeminiProvider(): ChatProvider {
             const json = line.slice(5).trim();
             if (!json) continue;
             try {
-              const obj = JSON.parse(json) as {
-                candidates?: Array<{
-                  content?: { parts?: { text?: string }[] };
-                  finishReason?: string;
-                }>;
-                error?: { message?: string };
-              };
+              const obj = JSON.parse(json) as GeminiResponseChunk;
               if (obj.error) {
                 yield {
                   type: "error",
@@ -128,16 +139,47 @@ export function createGeminiProvider(): ChatProvider {
                 };
                 continue;
               }
+              if (obj.promptFeedback?.blockReason) {
+                lastBlockReason = obj.promptFeedback.blockReason;
+              }
               const cand = obj.candidates?.[0];
               const text = cand?.content?.parts
                 ?.map((p) => p.text ?? "")
                 .join("");
-              if (text) yield { type: "delta", text };
-              if (cand?.finishReason) stopReason = cand.finishReason;
+              if (text) {
+                emittedAnyText = true;
+                yield { type: "delta", text };
+              }
+              if (cand?.finishReason) {
+                stopReason = cand.finishReason;
+                lastFinishReason = cand.finishReason;
+              }
             } catch {
               // Skip malformed chunk.
             }
           }
+        }
+      }
+
+      // Gemini sometimes ends a stream with no text — almost always a silent
+      // safety block. Surface a clear error instead of letting the UI hang.
+      if (!emittedAnyText) {
+        const reason =
+          lastBlockReason ??
+          (lastFinishReason && lastFinishReason !== "STOP"
+            ? lastFinishReason
+            : null);
+        if (reason) {
+          yield {
+            type: "error",
+            message: `Gemini returned no text (reason: ${reason}). This usually means a safety filter blocked the response. Try switching AI_PROVIDER to "anthropic" if this persists.`,
+          };
+        } else {
+          yield {
+            type: "error",
+            message:
+              "Gemini returned an empty response with no failure reason. Try retrying, or switch AI_PROVIDER to \"anthropic\".",
+          };
         }
       }
 
