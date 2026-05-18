@@ -14,7 +14,13 @@ interface GeminiContent {
 interface GeminiBody {
   systemInstruction: { parts: GeminiPart[] };
   contents: GeminiContent[];
-  generationConfig: { temperature: number; maxOutputTokens: number };
+  generationConfig: {
+    temperature: number;
+    maxOutputTokens: number;
+    // Gemini 2.5 has a "thinking" mode that consumes output tokens before
+    // producing text. For chat we want all tokens going to user-visible text.
+    thinkingConfig?: { thinkingBudget: number };
+  };
   safetySettings: { category: string; threshold: string }[];
 }
 
@@ -76,7 +82,13 @@ export function createGeminiProvider(): ChatProvider {
       const body: GeminiBody = {
         systemInstruction: { parts: [{ text: system }] },
         contents,
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+          // Disable Gemini 2.5 thinking mode so all output budget produces
+          // user-visible text rather than internal reasoning tokens.
+          thinkingConfig: { thinkingBudget: 0 },
+        },
         safetySettings: RELAXED_SAFETY,
       };
 
@@ -161,24 +173,30 @@ export function createGeminiProvider(): ChatProvider {
         }
       }
 
-      // Gemini sometimes ends a stream with no text — almost always a silent
-      // safety block. Surface a clear error instead of letting the UI hang.
+      // Gemini sometimes ends a stream with no text — usually safety block or
+      // thinking-mode exhausting the output budget. Surface a clear error.
       if (!emittedAnyText) {
         const reason =
           lastBlockReason ??
           (lastFinishReason && lastFinishReason !== "STOP"
             ? lastFinishReason
             : null);
-        if (reason) {
+        if (reason === "MAX_TOKENS") {
           yield {
             type: "error",
-            message: `Gemini returned no text (reason: ${reason}). This usually means a safety filter blocked the response. Try switching AI_PROVIDER to "anthropic" if this persists.`,
+            message:
+              "Gemini ran out of output budget before producing text. Try GEMINI_MODEL=gemini-2.5-flash-lite, or switch AI_PROVIDER to \"anthropic\".",
+          };
+        } else if (reason) {
+          yield {
+            type: "error",
+            message: `Gemini returned no text (reason: ${reason}). Try switching AI_PROVIDER to "anthropic" if this persists.`,
           };
         } else {
           yield {
             type: "error",
             message:
-              "Gemini returned an empty response with no failure reason. Try retrying, or switch AI_PROVIDER to \"anthropic\".",
+              "Gemini returned an empty response with no reason. Try GEMINI_MODEL=gemini-2.5-flash-lite, or switch AI_PROVIDER to \"anthropic\".",
           };
         }
       }
