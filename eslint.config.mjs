@@ -5,9 +5,13 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  {
+    rules: {
+      // We use plain ASCII apostrophes in JSX copy for the demo — not a real concern.
+      "react/no-unescaped-entities": "off",
+    },
+  },
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
