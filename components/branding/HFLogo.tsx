@@ -32,7 +32,7 @@ export function HFLogo({
           className="font-heading font-semibold text-[15px] tracking-tight"
           style={{ color: text }}
         >
-          Henry Ford Health
+          Skin Health Concierge
         </span>
         <span
           className="text-[11px] uppercase tracking-[0.16em] font-medium opacity-70"

@@ -112,7 +112,7 @@ export function BookingStep({
             Your request has been sent
           </h2>
           <p className="mt-2 text-foreground/70 leading-relaxed">
-            A Henry Ford care coordinator will reach out within{" "}
+            A care coordinator will reach out within{" "}
             <strong className="text-foreground">24 hours</strong> to confirm
             your appointment{intake.firstName ? `, ${intake.firstName}` : ""}.
           </p>
@@ -134,7 +134,7 @@ export function BookingStep({
             <Row icon={Calendar} label={`${formatLong(days[dayIdx])} · ${slot}`} />
             <Row
               icon={MapPin}
-              label="Henry Ford Medical Center — One Ford Place, Detroit"
+              label="Downtown Dermatology Center"
             />
           </div>
         </div>

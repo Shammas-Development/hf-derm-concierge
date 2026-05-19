@@ -24,8 +24,8 @@ export function ConsentDisclaimer({
         </p>
         <p className="mt-1 text-[#1F2937]/80">
           {compact
-            ? "We'll connect you with a Henry Ford dermatologist for personalized care."
-            : "We'll help you understand your concerns and connect you with a Henry Ford dermatologist for personalized care. Your conversation is private and not stored after your visit."}
+            ? "We'll connect you with a board-certified dermatologist for personalized care."
+            : "We'll help you understand your concerns and connect you with a board-certified dermatologist for personalized care. Your conversation is private and not stored after your visit."}
         </p>
       </div>
     </div>

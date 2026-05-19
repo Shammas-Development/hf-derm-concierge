@@ -122,7 +122,7 @@ export function SummaryStep({
         className="h-12 bg-[#003DA5] hover:bg-[#002C75]"
       >
         <Calendar className="mr-2 h-4 w-4" />
-        Book a Henry Ford dermatology appointment
+        Book a dermatology appointment
       </Button>
 
       <div className="rounded-2xl border border-border bg-white p-5 space-y-3">

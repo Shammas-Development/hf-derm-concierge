@@ -30,7 +30,7 @@ export default function Home() {
           <div className="mx-auto max-w-5xl px-4 sm:px-6 py-20 sm:py-28">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#003DA5]/15 bg-white/70 px-3 py-1 text-xs font-medium text-[#003DA5] backdrop-blur">
               <Sparkles className="h-3.5 w-3.5" />
-              In partnership with Henry Ford Health · Sales Demo
+              AI Dermatology Concierge · Demo
             </div>
             <h1 className="mt-6 font-heading text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-[#002C75] max-w-3xl leading-[1.05]">
               AI-powered skin health insights, designed for the way you actually
@@ -38,8 +38,8 @@ export default function Home() {
             </h1>
             <p className="mt-5 max-w-2xl text-lg text-foreground/70 leading-relaxed">
               An educational AI concierge that helps patients understand common
-              dermatology concerns and routes them to the right Henry Ford
-              specialist — built for events, kiosks, and waiting rooms.
+              dermatology concerns and routes them to the right specialist —
+              built for events, kiosks, and waiting rooms.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -89,7 +89,7 @@ export default function Home() {
               {
                 icon: Sparkles,
                 title: "Education, not diagnosis",
-                body: "Helps patients understand concerns and triage urgency. Always routes care to a Henry Ford dermatologist.",
+                body: "Helps patients understand concerns and triage urgency. Always routes care to a board-certified dermatologist.",
               },
               {
                 icon: Stethoscope,

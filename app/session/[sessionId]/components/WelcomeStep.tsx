@@ -17,7 +17,7 @@ export function WelcomeStep({ onContinue }: { onContinue: () => void }) {
         </h1>
         <p className="mt-3 text-foreground/70 leading-relaxed">
           Take a few minutes to share what's going on with your skin. We'll
-          help you understand it and connect you with the right Henry Ford
+          help you understand it and connect you with the right board-certified
           dermatologist.
         </p>
       </div>

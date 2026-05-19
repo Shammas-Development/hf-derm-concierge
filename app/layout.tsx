@@ -17,9 +17,9 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Henry Ford Dermatology AI Concierge",
+  title: "Skin Health Concierge — AI Dermatology Demo",
   description:
-    "AI-powered educational skin health insights, in partnership with Henry Ford Health.",
+    "AI-powered educational skin health insights. Educational tool, not a medical diagnosis.",
 };
 
 export const viewport: Viewport = {

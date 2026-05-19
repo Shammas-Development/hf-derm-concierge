@@ -499,7 +499,7 @@ export function ChatStep({ sessionId, intake, onEnd }: Props) {
             <DialogTitle>End consultation?</DialogTitle>
             <DialogDescription className="pt-2 leading-relaxed">
               I'll generate a short summary of what we discussed and recommend
-              your next step. You can book a Henry Ford appointment from the
+              your next step. You can book a dermatology appointment from the
               next screen.
             </DialogDescription>
           </DialogHeader>

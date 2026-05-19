@@ -88,7 +88,7 @@ export function DashboardView() {
           <>
             <Badge className="bg-[#10B981]/15 text-[#065F46] hover:bg-[#10B981]/15 border-0 gap-1.5">
               <Radio className="h-3 w-3 animate-pulse" />
-              Live · Henry Ford Event Day
+              Live · Event Day
             </Badge>
             <form action={logoutAction}>
               <Button

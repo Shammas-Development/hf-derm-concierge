@@ -115,7 +115,7 @@ export function KioskScreen({ sessionUrl }: { sessionUrl: string }) {
             transition={{ delay: 0.3, duration: 0.7 }}
             className="mt-4 lg:mt-6 max-w-[min(80vw,900px)] text-[clamp(1rem,1.4vw,1.75rem)] text-white/70"
           >
-            Educational, private, and connected to Henry Ford dermatologists.
+            Educational, private, and connected to board-certified dermatologists.
           </motion.p>
 
           <motion.div
@@ -173,7 +173,7 @@ export function KioskScreen({ sessionUrl }: { sessionUrl: string }) {
               </span>
             </div>
             <div className="hidden md:block text-white/60 text-[clamp(0.7rem,0.7vw,1rem)] uppercase tracking-[0.22em]">
-              In partnership with Henry Ford Dermatology
+              Skin Health Concierge · Demo
             </div>
           </div>
         </div>
