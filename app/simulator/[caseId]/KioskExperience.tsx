@@ -66,6 +66,9 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
   const [caption, setCaption] = useState("");
   const [hasAsked, setHasAsked] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  // In live-avatar mode, hold input until the stream is connected so a question
+  // asked during "Connecting…" isn't lost (repeat() needs a ready session).
+  const [avatarReady, setAvatarReady] = useState(mode !== "liveavatar");
 
   const presenterRef = useRef<PresenterHandle>(null);
   // Conversation context lives in a ref so async callbacks (mic submit) always
@@ -145,13 +148,19 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
   const begin = useCallback(() => {
     setStarted(true);
     presenterRef.current?.prime();
+    if (mode === "liveavatar") {
+      // The live avatar speaks its own opening line once connected, so skip our
+      // opener — otherwise the caption text appears before the avatar loads.
+      messagesRef.current = [];
+      return;
+    }
     const opener: SimChatMessage = {
       role: "user",
       text: "[The care team has just entered the room and greeted you. Respond with a brief, natural one-sentence greeting.]",
     };
     messagesRef.current = [opener];
     void streamReply([opener]);
-  }, [streamReply]);
+  }, [streamReply, mode]);
 
   const askQuestion = useCallback(
     (text: string) => {
@@ -172,7 +181,7 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
     if (isUnlocked("exam", next)) setPanelOpen(true);
   }, []);
 
-  const inputBusy = thinking || speaking;
+  const inputBusy = thinking || speaking || !avatarReady;
 
   return (
     <div className="relative flex flex-1 flex-col bg-[#F5F7FA]">
@@ -219,6 +228,7 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
           listening={listening}
           onSpeakStart={() => setSpeaking(true)}
           onSpeakEnd={() => setSpeaking(false)}
+          onReady={() => setAvatarReady(true)}
         />
 
         {!started && (

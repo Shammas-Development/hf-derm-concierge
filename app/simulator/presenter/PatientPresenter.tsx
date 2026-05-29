@@ -24,7 +24,16 @@ export const PatientPresenter = forwardRef<
   PresenterHandle,
   PatientPresenterProps
 >(function PatientPresenter(
-  { patient, mode, caption = "", thinking = false, listening = false, onSpeakStart, onSpeakEnd },
+  {
+    patient,
+    mode,
+    caption = "",
+    thinking = false,
+    listening = false,
+    onSpeakStart,
+    onSpeakEnd,
+    onReady,
+  },
   ref,
 ) {
   const { speak: ttsSpeak, cancel: ttsCancel, prime: ttsPrime } = useSpeech();
@@ -37,22 +46,31 @@ export const PatientPresenter = forwardRef<
   // once) never call a stale closure.
   const onStartRef = useRef(onSpeakStart);
   const onEndRef = useRef(onSpeakEnd);
+  const onReadyRef = useRef(onReady);
   onStartRef.current = onSpeakStart;
   onEndRef.current = onSpeakEnd;
+  onReadyRef.current = onReady;
 
   const sessionRef = useRef<LiveAvatarSession | null>(null);
   const startedRef = useRef(false);
   const speakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const markSpeakStart = useCallback(() => {
-    setSpeaking(true);
-    onStartRef.current?.();
-  }, []);
   const markSpeakEnd = useCallback(() => {
-    if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
+    if (speakTimerRef.current) {
+      clearTimeout(speakTimerRef.current);
+      speakTimerRef.current = null;
+    }
     setSpeaking(false);
     onEndRef.current?.();
   }, []);
+  const markSpeakStart = useCallback(() => {
+    setSpeaking(true);
+    onStartRef.current?.();
+    // Backstop: if the "speak ended" event never fires (greeting or reply),
+    // release after a generous window so input can't lock up forever.
+    if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
+    speakTimerRef.current = setTimeout(markSpeakEnd, 45000);
+  }, [markSpeakEnd]);
 
   // Start the live session inside the user gesture (prime).
   const startLive = useCallback(async () => {
@@ -66,8 +84,9 @@ export const PatientPresenter = forwardRef<
       });
       if (!res.ok) {
         const e = (await res.json().catch(() => ({}))) as { error?: string };
-        setNotice(e.error ?? "Live avatar unavailable.");
+        setNotice(e.error ?? "Live avatar unavailable — using voice.");
         startedRef.current = false;
+        onReadyRef.current?.(); // unlock input → falls back to browser TTS
         return;
       }
       const { sessionToken } = (await res.json()) as { sessionToken: string };
@@ -79,13 +98,15 @@ export const PatientPresenter = forwardRef<
       session.on(SessionEvent.SESSION_STREAM_READY, () => {
         if (videoRef.current) session.attach(videoRef.current);
         setLiveConnected(true);
+        onReadyRef.current?.();
       });
       session.on(AgentEventsEnum.AVATAR_SPEAK_STARTED, () => markSpeakStart());
       session.on(AgentEventsEnum.AVATAR_SPEAK_ENDED, () => markSpeakEnd());
       await session.start();
     } catch (err) {
-      setNotice(`Live avatar failed: ${(err as Error).message}`);
+      setNotice(`Live avatar failed — using voice: ${(err as Error).message}`);
       startedRef.current = false;
+      onReadyRef.current?.(); // unlock input → falls back to browser TTS
     }
   }, [patient.id, markSpeakStart, markSpeakEnd]);
 
@@ -104,20 +125,12 @@ export const PatientPresenter = forwardRef<
       if (!clean) return;
 
       if (mode === "liveavatar" && sessionRef.current) {
-        markSpeakStart();
+        markSpeakStart(); // also arms the backstop timer
         try {
           sessionRef.current.repeat(clean);
         } catch {
           markSpeakEnd();
-          return;
         }
-        // Fallback in case the AVATAR_SPEAK_ENDED event never arrives.
-        if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
-        const words = clean.split(/\s+/).length;
-        speakTimerRef.current = setTimeout(
-          markSpeakEnd,
-          Math.min(60000, 4000 + words * 450),
-        );
         return;
       }
 

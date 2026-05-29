@@ -76,6 +76,24 @@ export function PatientStage({
             )}
           </div>
 
+          {mode === "liveavatar" && !showVideo && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/70 backdrop-blur-sm">
+              <div className="flex gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={i}
+                    className="h-2.5 w-2.5 rounded-full bg-[#003DA5]/70"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-medium text-foreground/70">
+                Connecting to the patient…
+              </span>
+            </div>
+          )}
+
           {/* Speaking / listening chip */}
           <AnimatePresence>
             {(speaking || listening) && (

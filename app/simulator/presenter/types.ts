@@ -18,6 +18,7 @@ export interface PatientPresenterProps {
   listening?: boolean; // the mic is capturing a question
   onSpeakStart?: () => void;
   onSpeakEnd?: () => void;
+  onReady?: () => void; // live avatar stream connected and attached
 }
 
 export function resolveAvatarMode(): AvatarMode {
