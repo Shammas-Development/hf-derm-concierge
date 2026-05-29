@@ -17,9 +17,9 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Skin Health Concierge — AI Dermatology Demo",
+  title: "Patient Encounter Simulator",
   description:
-    "AI-powered educational skin health insights. Educational tool, not a medical diagnosis.",
+    "Interactive simulated-patient training kiosk for clinical encounters.",
 };
 
 export const viewport: Viewport = {

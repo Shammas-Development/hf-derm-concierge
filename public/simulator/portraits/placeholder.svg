@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Patient portrait placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef2f7"/>
+      <stop offset="1" stop-color="#dde5ee"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cdd6e0"/>
+      <stop offset="1" stop-color="#aeb9c6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <g fill="url(#skin)">
+    <circle cx="400" cy="370" r="160"/>
+    <path d="M180 1000 c0 -200 90 -360 220 -360 s220 160 220 360 z"/>
+  </g>
+  <text x="400" y="930" text-anchor="middle" font-family="system-ui, sans-serif" font-size="34" fill="#7c8a9c" font-weight="600">Replace with patient photo</text>
+</svg>
