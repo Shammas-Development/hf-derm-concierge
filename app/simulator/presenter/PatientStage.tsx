@@ -32,7 +32,8 @@ export function PatientStage({
   const d = patient.demographics;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-[clamp(1rem,2.5vh,2.5rem)] px-[clamp(1rem,3vw,3rem)] py-[clamp(1rem,2vh,2rem)] text-white">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-[clamp(1rem,3vw,3rem)] py-[clamp(1rem,2vh,2rem)] text-white">
+     <div className="my-auto flex w-full flex-col items-center gap-[clamp(0.75rem,2.5vh,2.5rem)]">
       {/* Patient visual */}
       <div className="relative flex flex-col items-center">
         <motion.div
@@ -50,7 +51,7 @@ export function PatientStage({
                 ? "aurora-glow-sky"
                 : "aurora-ring",
           )}
-          style={{ width: "clamp(240px, 36vh, 760px)" }}
+          style={{ width: "min(78vw, clamp(170px, 30vh, 720px))" }}
         >
           <div className="aspect-[4/5] w-full bg-white/5">
             <video
@@ -173,6 +174,7 @@ export function PatientStage({
           {notice}
         </p>
       )}
+     </div>
     </div>
   );
 }

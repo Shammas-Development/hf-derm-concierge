@@ -15,7 +15,7 @@ export function NextStepButton({
 
   if (!next) {
     return (
-      <div className="flex items-center gap-2 rounded-[clamp(0.9rem,1.3vw,1.4rem)] bg-emerald-500/90 px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(0.7rem,1.2vh,1.2rem)] text-[clamp(0.9rem,1.1vw,1.25rem)] font-semibold text-white shadow-lg shadow-emerald-500/30">
+      <div className="flex w-full items-center justify-center gap-2 rounded-[clamp(0.9rem,1.3vw,1.4rem)] bg-emerald-500/90 px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(0.7rem,1.2vh,1.2rem)] text-[clamp(0.9rem,1.1vw,1.25rem)] font-semibold text-white shadow-lg shadow-emerald-500/30 sm:w-auto">
         <CheckCircle2 className="h-[1.2em] w-[1.2em]" />
         <span>Encounter complete</span>
       </div>
@@ -25,7 +25,7 @@ export function NextStepButton({
   return (
     <button
       onClick={() => onAdvance(next)}
-      className="aurora-fill aurora-ring group flex items-center gap-[clamp(0.6rem,1vw,1rem)] rounded-[clamp(0.9rem,1.3vw,1.4rem)] px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(0.6rem,1vh,1.1rem)] text-white transition hover:brightness-110 active:translate-y-px focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30"
+      className="aurora-fill aurora-ring group flex w-full items-center justify-center gap-[clamp(0.6rem,1vw,1rem)] rounded-[clamp(0.9rem,1.3vw,1.4rem)] px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(0.6rem,1vh,1.1rem)] text-white transition hover:brightness-110 active:translate-y-px focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30 sm:w-auto sm:justify-start"
     >
       <span className="text-left leading-tight">
         <span className="block text-[clamp(0.6rem,0.75vw,0.85rem)] uppercase tracking-[0.18em] text-white/75">

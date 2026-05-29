@@ -185,7 +185,7 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
   const inputBusy = thinking || speaking || !avatarReady;
 
   return (
-    <div className="relative flex min-h-dvh flex-1 flex-col text-white">
+    <div className="relative flex h-dvh flex-col overflow-hidden text-white">
       <Aurora />
 
       {/* Top bar */}
@@ -219,7 +219,7 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
       </header>
 
       {/* Patient stage */}
-      <main className="relative flex flex-1 flex-col">
+      <main className="relative flex min-h-0 flex-1 flex-col">
         <PatientPresenter
           ref={presenterRef}
           patient={patient}
@@ -302,8 +302,8 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
               </div>
             </div>
           )}
-          <div className="flex flex-wrap items-end gap-[clamp(0.6rem,1.2vw,1.5rem)]">
-            <div className="min-w-[min(100%,260px)] flex-1">
+          <div className="flex flex-col gap-[clamp(0.5rem,1vh,0.9rem)] sm:flex-row sm:items-end sm:gap-[clamp(0.6rem,1.2vw,1.5rem)]">
+            <div className="w-full sm:flex-1">
               <ProviderInput
                 disabled={!started || inputBusy}
                 onSubmit={askQuestion}
