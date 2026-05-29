@@ -14,12 +14,10 @@ interface Props {
   thinking: boolean;
   listening: boolean;
   videoRef?: RefObject<HTMLVideoElement | null>;
-  showVideo?: boolean; // true once a live avatar stream is attached
-  notice?: string; // small status note (e.g. HeyGen fallback)
+  showVideo?: boolean;
+  notice?: string;
 }
 
-// Pure visual surface for the patient: the portrait/avatar plus the caption
-// bubble that shows what they're saying. No speech logic lives here.
 export function PatientStage({
   patient,
   mode,
@@ -34,29 +32,27 @@ export function PatientStage({
   const d = patient.demographics;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-6">
+    <div className="flex flex-1 flex-col items-center justify-center gap-[clamp(1rem,2.5vh,2.5rem)] px-[clamp(1rem,3vw,3rem)] py-[clamp(1rem,2vh,2rem)] text-white">
       {/* Patient visual */}
-      <div className="relative">
+      <div className="relative flex flex-col items-center">
         <motion.div
-          animate={
-            speaking
-              ? { scale: [1, 1.012, 1] }
-              : { scale: [1, 1.006, 1] }
-          }
+          animate={speaking ? { scale: [1, 1.012, 1] } : { scale: [1, 1.006, 1] }}
           transition={{
             duration: speaking ? 0.5 : 5,
             repeat: Infinity,
             ease: "easeInOut",
           }}
           className={cn(
-            "relative overflow-hidden rounded-[2rem] bg-white shadow-2xl ring-1 ring-black/5",
-            speaking && "ring-4 ring-emerald-400/60",
-            listening && "ring-4 ring-sky-400/60",
+            "relative overflow-hidden rounded-[clamp(1.25rem,2.2vw,2.5rem)] transition-shadow duration-500",
+            speaking
+              ? "aurora-glow-emerald"
+              : listening
+                ? "aurora-glow-sky"
+                : "aurora-ring",
           )}
-          style={{ width: "clamp(260px, 34vh, 460px)" }}
+          style={{ width: "clamp(240px, 36vh, 760px)" }}
         >
-          <div className="aspect-[4/5] w-full">
-            {/* Live avatar video (HeyGen) mounts here when connected */}
+          <div className="aspect-[4/5] w-full bg-white/5">
             <video
               ref={videoRef}
               autoPlay
@@ -76,25 +72,7 @@ export function PatientStage({
             )}
           </div>
 
-          {mode === "liveavatar" && !showVideo && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/70 backdrop-blur-sm">
-              <div className="flex gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <motion.span
-                    key={i}
-                    className="h-2.5 w-2.5 rounded-full bg-[#003DA5]/70"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
-                  />
-                ))}
-              </div>
-              <span className="text-sm font-medium text-foreground/70">
-                Connecting to the patient…
-              </span>
-            </div>
-          )}
-
-          {/* Speaking / listening chip */}
+          {/* Status chip */}
           <AnimatePresence>
             {(speaking || listening) && (
               <motion.div
@@ -102,28 +80,49 @@ export function PatientStage({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
                 className={cn(
-                  "absolute left-1/2 top-3 -translate-x-1/2 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-white backdrop-blur",
+                  "absolute left-1/2 top-[clamp(0.6rem,1.2vw,1rem)] flex -translate-x-1/2 items-center gap-1.5 rounded-full px-[clamp(0.7rem,1vw,1.1rem)] py-[clamp(0.25rem,0.5vh,0.45rem)] text-[clamp(0.7rem,0.9vw,1rem)] font-medium text-white backdrop-blur",
                   speaking ? "bg-emerald-500/85" : "bg-sky-500/85",
                 )}
               >
                 {speaking ? (
                   <>
-                    <Volume2 className="h-3.5 w-3.5" /> Speaking
+                    <Volume2 className="h-[1.1em] w-[1.1em]" /> Speaking
                   </>
                 ) : (
                   <>
-                    <Mic className="h-3.5 w-3.5" /> Listening
+                    <Mic className="h-[1.1em] w-[1.1em]" /> Listening
                   </>
                 )}
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Connecting overlay (live avatar) */}
+          {mode === "liveavatar" && !showVideo && (
+            <div className="glass-panel absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <div className="flex gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={i}
+                    className="aurora-fill h-[clamp(0.5rem,0.8vw,0.85rem)] w-[clamp(0.5rem,0.8vw,0.85rem)] rounded-full"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
+                  />
+                ))}
+              </div>
+              <span className="text-[clamp(0.8rem,1vw,1.15rem)] font-medium text-white/75">
+                Connecting to the patient…
+              </span>
+            </div>
+          )}
         </motion.div>
 
         {/* Name plate */}
-        <div className="mt-4 text-center">
-          <div className="text-lg font-semibold text-foreground">{d.name}</div>
-          <div className="text-sm text-muted-foreground">
+        <div className="mt-[clamp(0.75rem,1.5vh,1.5rem)] text-center">
+          <div className="font-heading text-[clamp(1.25rem,2vw,2.6rem)] font-semibold leading-tight">
+            {d.name}
+          </div>
+          <div className="text-[clamp(0.8rem,1vw,1.3rem)] text-white/55">
             {d.age} · {d.sex}
             {d.occupation ? ` · ${d.occupation}` : ""}
           </div>
@@ -131,7 +130,7 @@ export function PatientStage({
       </div>
 
       {/* Caption bubble — what the patient is saying */}
-      <div className="min-h-[4.5rem] w-full max-w-2xl">
+      <div className="flex min-h-[clamp(4rem,8vh,7rem)] w-full max-w-[min(90vw,1100px)] items-start justify-center">
         <AnimatePresence mode="wait">
           {thinking && !caption ? (
             <motion.div
@@ -139,12 +138,12 @@ export function PatientStage({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="mx-auto flex w-fit items-center gap-1.5 rounded-2xl bg-white px-5 py-4 shadow-md ring-1 ring-black/5"
+              className="glass-bright flex w-fit items-center gap-2 rounded-[clamp(1rem,1.4vw,1.5rem)] px-[clamp(1.1rem,1.6vw,2rem)] py-[clamp(0.8rem,1.2vh,1.3rem)] shadow-2xl"
             >
               {[0, 1, 2].map((i) => (
                 <motion.span
                   key={i}
-                  className="h-2 w-2 rounded-full bg-[#003DA5]/70"
+                  className="aurora-fill h-2.5 w-2.5 rounded-full"
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.15 }}
                 />
@@ -157,10 +156,10 @@ export function PatientStage({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="relative mx-auto rounded-2xl bg-white px-6 py-4 text-center text-[1.35rem] leading-relaxed text-foreground shadow-md ring-1 ring-black/5"
+              className="glass-bright relative rounded-[clamp(1rem,1.5vw,1.75rem)] px-[clamp(1.25rem,2vw,2.5rem)] py-[clamp(0.9rem,1.4vh,1.5rem)] text-center text-[clamp(1.15rem,1.7vw,2.4rem)] leading-relaxed text-slate-900 shadow-2xl"
             >
               <span
-                className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 rounded-sm bg-white ring-1 ring-black/5"
+                className="glass-bright absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 rounded-sm"
                 aria-hidden
               />
               {caption}
@@ -170,7 +169,9 @@ export function PatientStage({
       </div>
 
       {notice && (mode === "heygen" || mode === "liveavatar") && (
-        <p className="text-xs text-muted-foreground">{notice}</p>
+        <p className="text-[clamp(0.7rem,0.85vw,0.95rem)] text-white/45">
+          {notice}
+        </p>
       )}
     </div>
   );

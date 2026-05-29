@@ -15,9 +15,9 @@ export function NextStepButton({
 
   if (!next) {
     return (
-      <div className="flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3.5 text-white shadow-lg">
-        <CheckCircle2 className="h-5 w-5" />
-        <span className="font-semibold">Encounter complete</span>
+      <div className="flex items-center gap-2 rounded-[clamp(0.9rem,1.3vw,1.4rem)] bg-emerald-500/90 px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(0.7rem,1.2vh,1.2rem)] text-[clamp(0.9rem,1.1vw,1.25rem)] font-semibold text-white shadow-lg shadow-emerald-500/30">
+        <CheckCircle2 className="h-[1.2em] w-[1.2em]" />
+        <span>Encounter complete</span>
       </div>
     );
   }
@@ -25,15 +25,17 @@ export function NextStepButton({
   return (
     <button
       onClick={() => onAdvance(next)}
-      className="group flex items-center gap-3 rounded-2xl bg-[#003DA5] px-5 py-3.5 text-white shadow-lg transition hover:bg-[#002C75] active:translate-y-px"
+      className="aurora-fill aurora-ring group flex items-center gap-[clamp(0.6rem,1vw,1rem)] rounded-[clamp(0.9rem,1.3vw,1.4rem)] px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(0.6rem,1vh,1.1rem)] text-white transition hover:brightness-110 active:translate-y-px focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30"
     >
       <span className="text-left leading-tight">
-        <span className="block text-[11px] uppercase tracking-wide text-white/70">
+        <span className="block text-[clamp(0.6rem,0.75vw,0.85rem)] uppercase tracking-[0.18em] text-white/75">
           Next step
         </span>
-        <span className="block font-semibold">{STAGE_META[next].label}</span>
+        <span className="block text-[clamp(0.95rem,1.2vw,1.4rem)] font-semibold">
+          {STAGE_META[next].label}
+        </span>
       </span>
-      <ArrowRight className="h-5 w-5 transition group-hover:translate-x-0.5" />
+      <ArrowRight className="h-[clamp(1.1rem,1.5vw,1.6rem)] w-[clamp(1.1rem,1.5vw,1.6rem)] transition group-hover:translate-x-0.5" />
     </button>
   );
 }

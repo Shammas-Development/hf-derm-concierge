@@ -1,55 +1,65 @@
 import Link from "next/link";
-import { ArrowRight, Stethoscope } from "lucide-react";
+import { ArrowRight, Stethoscope, Sparkles } from "lucide-react";
 import { listCases } from "@/lib/simulator/cases";
+import { Aurora } from "./components/Aurora";
 
 export function CasePicker() {
   const cases = listCases();
   return (
-    <div className="flex flex-1 flex-col bg-[#F5F7FA]">
-      <div className="mx-auto w-full max-w-4xl px-6 py-12">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#003DA5] text-white">
-            <Stethoscope className="h-5 w-5" />
+    <div className="relative flex min-h-dvh flex-1 flex-col text-white">
+      <Aurora />
+
+      <div className="mx-auto w-full max-w-[min(92vw,1600px)] flex-1 px-[clamp(1rem,4vw,4rem)] py-[clamp(2rem,6vh,6rem)]">
+        {/* Header */}
+        <div className="flex items-center gap-[clamp(0.75rem,1.2vw,1.5rem)]">
+          <span className="aurora-fill aurora-ring flex aspect-square w-[clamp(2.75rem,4.5vw,5rem)] items-center justify-center rounded-[clamp(0.9rem,1.4vw,1.6rem)] text-white">
+            <Stethoscope className="h-[55%] w-[55%]" />
           </span>
           <div>
-            <h1 className="font-heading text-2xl font-semibold">
-              Patient Encounter Simulator
+            <div className="flex items-center gap-2 text-[clamp(0.65rem,0.9vw,1rem)] font-medium uppercase tracking-[0.22em] text-white/55">
+              <Sparkles className="h-[1em] w-[1em]" />
+              Clinical Training
+            </div>
+            <h1 className="font-heading text-[clamp(1.6rem,3.4vw,4rem)] font-semibold leading-[1.05]">
+              <span className="aurora-text">Patient Encounter</span> Simulator
             </h1>
-            <p className="text-sm text-muted-foreground">
-              Interview a simulated patient through history, exam, results,
-              diagnosis, and treatment.
-            </p>
           </div>
         </div>
+        <p className="mt-[clamp(0.75rem,1.5vh,1.5rem)] max-w-[60ch] text-[clamp(0.95rem,1.2vw,1.5rem)] leading-relaxed text-white/65">
+          Interview a lifelike patient through history, examination, results,
+          diagnosis, and treatment — by voice or touch.
+        </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        {/* Cases */}
+        <div className="mt-[clamp(2rem,4vh,4rem)] grid gap-[clamp(1rem,1.8vw,2rem)] [grid-template-columns:repeat(auto-fill,minmax(min(100%,clamp(280px,26vw,460px)),1fr))]">
           {cases.map((c) => (
             <Link
               key={c.id}
               href={`/simulator/${c.id}`}
-              className="group rounded-2xl border border-border bg-white p-5 shadow-sm transition hover:border-[#003DA5]/40 hover:shadow-md"
+              className="group glass-card relative overflow-hidden rounded-[clamp(1.1rem,1.6vw,2rem)] p-[clamp(1.1rem,1.5vw,1.75rem)] transition duration-300 hover:-translate-y-1 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
             >
-              <div className="flex items-start gap-4">
+              <span className="aurora-fill pointer-events-none absolute inset-x-0 -top-px h-px opacity-60" />
+              <div className="flex items-start gap-[clamp(0.9rem,1.4vw,1.5rem)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={c.portraitUrl}
                   alt={c.demographics.name}
-                  className="h-20 w-16 rounded-lg object-cover ring-1 ring-black/5"
+                  className="aspect-[4/5] w-[clamp(4.5rem,7vw,8rem)] shrink-0 rounded-[clamp(0.7rem,1vw,1.2rem)] object-cover ring-1 ring-white/15"
                 />
                 <div className="flex-1">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-[#003DA5]">
+                  <div className="text-[clamp(0.62rem,0.8vw,0.9rem)] font-semibold uppercase tracking-[0.18em] text-teal-300/90">
                     {c.specialty}
                     {c.difficulty ? ` · ${c.difficulty}` : ""}
                   </div>
-                  <div className="mt-0.5 text-lg font-semibold text-foreground">
+                  <div className="mt-1 text-[clamp(1.1rem,1.5vw,1.9rem)] font-semibold leading-tight">
                     {c.demographics.name}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-[clamp(0.85rem,1vw,1.2rem)] text-white/55">
                     {c.demographics.age} · {c.demographics.sex} · {c.title}
                   </div>
-                  <div className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-[#003DA5]">
+                  <div className="mt-[clamp(0.75rem,1.4vh,1.5rem)] inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[clamp(0.8rem,0.95vw,1.1rem)] font-medium text-white transition group-hover:bg-white/20">
                     Start encounter
-                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                    <ArrowRight className="h-[1em] w-[1em] transition group-hover:translate-x-0.5" />
                   </div>
                 </div>
               </div>

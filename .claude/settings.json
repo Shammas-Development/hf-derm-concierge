@@ -12,7 +12,11 @@
       "Bash(python3 -c 'import sys,json *)",
       "Bash(python3 -c 'import sys,json,re *)",
       "Bash(grep -iE \"apps/demo|packages|README|route|token|\\\\.ts$|\\\\.tsx$\")",
-      "Bash(grep -iE \"\\\\.tsx?$|README|\\\\.env\")"
+      "Bash(grep -iE \"\\\\.tsx?$|README|\\\\.env\")",
+      "Bash(curl -s -o /dev/null http://localhost:3009/)",
+      "Bash(node ./_shots2.mjs)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3009/)",
+      "Bash(echo \"3009 status: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3009/ 2>/dev/null\\)\")"
     ]
   }
 }

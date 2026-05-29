@@ -37,20 +37,23 @@ export function ResultsPanel({ patient, current, open, onClose }: Props) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl"
+            className="glass-bright fixed right-0 top-0 z-50 flex h-full w-full max-w-[min(94vw,560px)] flex-col text-slate-900 shadow-2xl"
           >
-            <header className="flex items-center justify-between border-b border-border px-5 py-4">
-              <h2 className="text-base font-semibold">Clinical chart</h2>
+            <header className="relative flex items-center justify-between border-b border-black/5 px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(0.8rem,1.4vh,1.25rem)]">
+              <span className="aurora-fill absolute inset-x-0 top-0 h-1" aria-hidden />
+              <h2 className="text-[clamp(1rem,1.3vw,1.5rem)] font-semibold">
+                Clinical chart
+              </h2>
               <button
                 onClick={onClose}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                className="flex aspect-square w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
             </header>
 
-            <div className="chat-scroll flex-1 space-y-5 overflow-y-auto px-5 py-5">
+            <div className="chat-scroll flex-1 space-y-[clamp(1rem,2vh,1.75rem)] overflow-y-auto px-[clamp(1rem,1.6vw,1.75rem)] py-[clamp(1rem,2vh,1.75rem)]">
               <Section
                 icon={<Stethoscope className="h-4 w-4" />}
                 title="Examination"
@@ -64,7 +67,7 @@ export function ResultsPanel({ patient, current, open, onClose }: Props) {
                 <ul className="space-y-2">
                   {patient.exam.findings.map((f, i) => (
                     <li key={i} className="rounded-lg bg-muted/60 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-[#003DA5]">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
                         {f.region}
                       </div>
                       <div className="mt-1 text-sm text-foreground/80">
@@ -103,7 +106,7 @@ export function ResultsPanel({ patient, current, open, onClose }: Props) {
                   <ul className="mt-2 space-y-1">
                     {patient.biopsy.findings.map((f, i) => (
                       <li key={i} className="flex gap-2 text-sm text-foreground/80">
-                        <span className="text-[#003DA5]">•</span>
+                        <span className="text-indigo-600">•</span>
                         {f}
                       </li>
                     ))}
@@ -121,7 +124,7 @@ export function ResultsPanel({ patient, current, open, onClose }: Props) {
                   {patient.diagnosis.primary}
                 </div>
                 {patient.diagnosis.staging && (
-                  <div className="mt-1 rounded-md bg-[#EEF2FB] px-3 py-2 text-sm text-[#002C75]">
+                  <div className="mt-1 rounded-md bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
                     {patient.diagnosis.staging}
                   </div>
                 )}
@@ -169,7 +172,7 @@ function Section({
   return (
     <section>
       <div className="mb-2 flex items-center gap-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EEF2FB] text-[#003DA5]">
+        <span className="aurora-fill flex h-8 w-8 items-center justify-center rounded-xl text-white">
           {icon}
         </span>
         <h3 className="text-sm font-semibold">{title}</h3>
@@ -222,7 +225,7 @@ function BulletGroup({ label, items }: { label: string; items: string[] }) {
       <ul className="mt-1 space-y-1">
         {items.map((it, i) => (
           <li key={i} className="flex gap-2 text-sm text-foreground/80">
-            <span className="text-[#003DA5]">•</span>
+            <span className="text-indigo-600">•</span>
             {it}
           </li>
         ))}

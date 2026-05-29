@@ -48,7 +48,7 @@ export function ProviderInput({ disabled, onSubmit, onListeningChange }: Props) 
   };
 
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex items-end gap-[clamp(0.4rem,0.8vw,0.75rem)]">
       {supported && (
         <button
           type="button"
@@ -56,21 +56,21 @@ export function ProviderInput({ disabled, onSubmit, onListeningChange }: Props) 
           disabled={disabled}
           aria-label={listening ? "Stop listening" : "Ask by voice"}
           className={cn(
-            "flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white transition disabled:opacity-40",
+            "flex aspect-square w-[clamp(3rem,4vw,4.25rem)] shrink-0 items-center justify-center rounded-[clamp(0.9rem,1.3vw,1.4rem)] text-white transition disabled:opacity-40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/30",
             listening
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-[#003DA5] hover:bg-[#002C75]",
+              ? "bg-red-500 shadow-lg shadow-red-500/40 hover:bg-red-600"
+              : "aurora-fill aurora-ring hover:brightness-110",
           )}
         >
           {listening ? (
-            <Square className="h-5 w-5 fill-current" />
+            <Square className="h-[40%] w-[40%] fill-current" />
           ) : (
-            <Mic className="h-6 w-6" />
+            <Mic className="h-[48%] w-[48%]" />
           )}
         </button>
       )}
 
-      <div className="flex flex-1 items-end gap-2 rounded-2xl border border-border bg-white px-3 py-2 focus-within:border-[#003DA5]/50 focus-within:ring-2 focus-within:ring-[#003DA5]/15">
+      <div className="flex flex-1 items-end gap-2 rounded-[clamp(0.9rem,1.3vw,1.4rem)] border border-white/15 bg-white/10 px-[clamp(0.6rem,1vw,1rem)] py-[clamp(0.3rem,0.5vh,0.5rem)] backdrop-blur transition focus-within:border-teal-300/50 focus-within:ring-2 focus-within:ring-teal-300/40">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -82,20 +82,18 @@ export function ProviderInput({ disabled, onSubmit, onListeningChange }: Props) 
           }}
           rows={1}
           disabled={disabled}
-          placeholder={
-            listening ? "Listening…" : "Ask the patient a question…"
-          }
-          className="flex-1 resize-none bg-transparent py-2 text-[1.05rem] leading-snug text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-60"
+          placeholder={listening ? "Listening…" : "Ask the patient a question…"}
+          className="flex-1 resize-none bg-transparent py-[clamp(0.5rem,0.9vh,0.85rem)] text-[clamp(1rem,1.2vw,1.4rem)] leading-snug text-white placeholder:text-white/40 focus:outline-none disabled:opacity-60"
         />
         <Button
           type="button"
           size="icon"
           onClick={submitTyped}
           disabled={disabled || !text.trim()}
-          className="h-10 w-10 shrink-0 rounded-xl bg-[#003DA5] hover:bg-[#002C75]"
+          className="aurora-fill h-[clamp(2.25rem,3vw,3rem)] w-[clamp(2.25rem,3vw,3rem)] shrink-0 rounded-[clamp(0.7rem,1vw,1.1rem)] hover:brightness-110 disabled:opacity-40"
           aria-label="Send"
         >
-          <Send className="h-4 w-4" />
+          <Send className="h-[45%] w-[45%]" />
         </Button>
       </div>
     </div>
