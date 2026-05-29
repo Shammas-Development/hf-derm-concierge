@@ -13,6 +13,7 @@ export interface PresenterHandle {
 export interface PatientPresenterProps {
   patient: PatientCase;
   mode: AvatarMode;
+  caption?: string; // text shown under the patient (streams in, then is spoken)
   thinking?: boolean; // a reply is being generated
   listening?: boolean; // the mic is capturing a question
   onSpeakStart?: () => void;

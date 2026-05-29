@@ -28,6 +28,12 @@ export function ProviderInput({ disabled, onSubmit, onListeningChange }: Props) 
     onListeningChange?.(listening);
   }, [listening, onListeningChange]);
 
+  // If the patient starts thinking/speaking, force the mic off so it never
+  // transcribes the patient's own voice back into the box.
+  useEffect(() => {
+    if (disabled && listening) stop();
+  }, [disabled, listening, stop]);
+
   const submitTyped = () => {
     const clean = text.trim();
     if (!clean || disabled) return;

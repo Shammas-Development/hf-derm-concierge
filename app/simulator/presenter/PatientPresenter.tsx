@@ -21,11 +21,10 @@ export const PatientPresenter = forwardRef<
   PresenterHandle,
   PatientPresenterProps
 >(function PatientPresenter(
-  { patient, mode, thinking = false, listening = false, onSpeakStart, onSpeakEnd },
+  { patient, mode, caption = "", thinking = false, listening = false, onSpeakStart, onSpeakEnd },
   ref,
 ) {
   const { speak: ttsSpeak, cancel: ttsCancel, prime: ttsPrime } = useSpeech();
-  const [caption, setCaption] = useState("");
   const [speaking, setSpeaking] = useState(false);
   const [notice, setNotice] = useState<string | undefined>();
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -63,7 +62,6 @@ export const PatientPresenter = forwardRef<
     (text: string) => {
       const clean = text.trim();
       if (!clean) return;
-      setCaption(clean);
       setSpeaking(true);
       onSpeakStart?.();
 

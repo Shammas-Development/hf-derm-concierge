@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -o \"You.\\\\{0,6\\\\}about to interview\" /tmp/case.html)"
+    ]
+  }
+}

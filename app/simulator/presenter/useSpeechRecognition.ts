@@ -55,7 +55,10 @@ export function useSpeechRecognition(opts: {
     if (!Ctor) return;
     const rec = new Ctor();
     rec.lang = "en-US";
-    rec.continuous = true;
+    // Single-utterance mode: recognition ends on its own when the speaker
+    // pauses, which auto-submits the question (ChatGPT-style) and turns the
+    // mic off — so it can't keep capturing the patient's spoken reply.
+    rec.continuous = false;
     rec.interimResults = true;
     finalRef.current = "";
 
