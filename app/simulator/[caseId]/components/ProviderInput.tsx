@@ -70,7 +70,7 @@ export function ProviderInput({ disabled, onSubmit, onListeningChange }: Props) 
         </button>
       )}
 
-      <div className="flex flex-1 items-end gap-2 rounded-[clamp(0.9rem,1.3vw,1.4rem)] border border-white/15 bg-white/10 px-[clamp(0.6rem,1vw,1rem)] py-[clamp(0.3rem,0.5vh,0.5rem)] backdrop-blur transition focus-within:border-teal-300/50 focus-within:ring-2 focus-within:ring-teal-300/40">
+      <div className="sim-surface sim-border flex flex-1 items-end gap-2 rounded-[clamp(0.9rem,1.3vw,1.4rem)] border px-[clamp(0.6rem,1vw,1rem)] py-[clamp(0.3rem,0.5vh,0.5rem)] backdrop-blur transition focus-within:border-teal-400/60 focus-within:ring-2 focus-within:ring-teal-400/40">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -82,8 +82,9 @@ export function ProviderInput({ disabled, onSubmit, onListeningChange }: Props) 
           }}
           rows={1}
           disabled={disabled}
+          aria-label="Ask the patient a question"
           placeholder={listening ? "Listening…" : "Ask the patient a question…"}
-          className="flex-1 resize-none bg-transparent py-[clamp(0.5rem,0.9vh,0.85rem)] text-[clamp(1rem,1.2vw,1.4rem)] leading-snug text-white placeholder:text-white/40 focus:outline-none disabled:opacity-60"
+          className="sim-fg flex-1 resize-none bg-transparent py-[clamp(0.5rem,0.9vh,0.85rem)] text-[clamp(1rem,1.2vw,1.4rem)] leading-snug placeholder:text-[var(--sim-subtle)] focus:outline-none disabled:opacity-60"
         />
         <Button
           type="button"

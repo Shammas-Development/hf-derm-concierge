@@ -32,7 +32,7 @@ export function PatientStage({
   const d = patient.demographics;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-[clamp(1rem,3vw,3rem)] py-[clamp(1rem,2vh,2rem)] text-white">
+    <div className="sim-fg flex min-h-0 flex-1 flex-col overflow-y-auto px-[clamp(1rem,3vw,3rem)] py-[clamp(1rem,2vh,2rem)]">
      <div className="my-auto flex w-full flex-col items-center gap-[clamp(0.75rem,2.5vh,2.5rem)]">
       {/* Patient visual */}
       <div className="relative flex flex-col items-center">
@@ -58,6 +58,7 @@ export function PatientStage({
               ref={videoRef}
               autoPlay
               playsInline
+              aria-label={`Live video of ${d.name}, the patient`}
               className={cn(
                 "h-full w-full object-cover",
                 showVideo ? "block" : "hidden",
@@ -77,6 +78,8 @@ export function PatientStage({
           <AnimatePresence>
             {(speaking || listening) && (
               <motion.div
+                role="status"
+                aria-live="polite"
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 6 }}
@@ -111,7 +114,7 @@ export function PatientStage({
                   />
                 ))}
               </div>
-              <span className="text-[clamp(0.8rem,1vw,1.15rem)] font-medium text-white/75">
+              <span className="sim-muted text-[clamp(0.8rem,1vw,1.15rem)] font-medium">
                 Connecting to the patient…
               </span>
             </div>
@@ -123,7 +126,7 @@ export function PatientStage({
           <div className="font-heading text-[clamp(1.25rem,2vw,2.6rem)] font-semibold leading-tight">
             {d.name}
           </div>
-          <div className="text-[clamp(0.8rem,1vw,1.3rem)] text-white/55">
+          <div className="sim-muted text-[clamp(0.8rem,1vw,1.3rem)]">
             {d.age} · {d.sex}
             {d.occupation ? ` · ${d.occupation}` : ""}
           </div>
@@ -154,6 +157,8 @@ export function PatientStage({
             <motion.div
               key="caption"
               data-testid="patient-caption"
+              role="status"
+              aria-live="polite"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -170,7 +175,7 @@ export function PatientStage({
       </div>
 
       {notice && (mode === "heygen" || mode === "liveavatar") && (
-        <p className="text-[clamp(0.7rem,0.85vw,0.95rem)] text-white/45">
+        <p className="sim-subtle text-[clamp(0.7rem,0.85vw,0.95rem)]">
           {notice}
         </p>
       )}

@@ -33,6 +33,9 @@ export function ResultsPanel({ patient, current, open, onClose }: Props) {
             className="fixed inset-0 z-40 bg-black/30"
           />
           <motion.aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Clinical chart"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

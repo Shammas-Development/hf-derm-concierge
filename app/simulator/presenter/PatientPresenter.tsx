@@ -33,6 +33,7 @@ export const PatientPresenter = forwardRef<
     onSpeakStart,
     onSpeakEnd,
     onReady,
+    onCaption,
   },
   ref,
 ) {
@@ -47,13 +48,19 @@ export const PatientPresenter = forwardRef<
   const onStartRef = useRef(onSpeakStart);
   const onEndRef = useRef(onSpeakEnd);
   const onReadyRef = useRef(onReady);
+  const onCaptionRef = useRef(onCaption);
   onStartRef.current = onSpeakStart;
   onEndRef.current = onSpeakEnd;
   onReadyRef.current = onReady;
+  onCaptionRef.current = onCaption;
 
   const sessionRef = useRef<LiveAvatarSession | null>(null);
   const startedRef = useRef(false);
   const speakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Live-caption accumulation: chunks build the bubble as the avatar speaks;
+  // pendingFull is the exact text we asked it to repeat (final-source-of-truth).
+  const captionAccumRef = useRef("");
+  const pendingFullRef = useRef("");
 
   const markSpeakEnd = useCallback(() => {
     if (speakTimerRef.current) {
@@ -100,8 +107,23 @@ export const PatientPresenter = forwardRef<
         setLiveConnected(true);
         onReadyRef.current?.();
       });
-      session.on(AgentEventsEnum.AVATAR_SPEAK_STARTED, () => markSpeakStart());
-      session.on(AgentEventsEnum.AVATAR_SPEAK_ENDED, () => markSpeakEnd());
+      session.on(AgentEventsEnum.AVATAR_SPEAK_STARTED, () => {
+        captionAccumRef.current = "";
+        onCaptionRef.current?.(""); // clear previous line as a new one begins
+        markSpeakStart();
+      });
+      // Word-by-word transcript, emitted in sync with the avatar's voice.
+      session.on(AgentEventsEnum.AVATAR_TRANSCRIPTION_CHUNK, (e) => {
+        captionAccumRef.current += (e as { text?: string }).text ?? "";
+        onCaptionRef.current?.(captionAccumRef.current);
+      });
+      session.on(AgentEventsEnum.AVATAR_SPEAK_ENDED, () => {
+        // Ensure the final line is complete even if chunks were lossy.
+        const full = pendingFullRef.current || captionAccumRef.current;
+        pendingFullRef.current = "";
+        if (full) onCaptionRef.current?.(full);
+        markSpeakEnd();
+      });
       await session.start();
     } catch (err) {
       setNotice(`Live avatar failed — using voice: ${(err as Error).message}`);
@@ -125,6 +147,7 @@ export const PatientPresenter = forwardRef<
       if (!clean) return;
 
       if (mode === "liveavatar" && sessionRef.current) {
+        pendingFullRef.current = clean; // final caption source-of-truth
         markSpeakStart(); // also arms the backstop timer
         try {
           sessionRef.current.repeat(clean);
@@ -170,10 +193,27 @@ export const PatientPresenter = forwardRef<
     ttsPrime();
   }, [mode, startLive, ttsPrime]);
 
+  // Tear down the live session to stop billing. startedRef is reset so a later
+  // prime() can spin up a fresh session (used by the idle auto-disconnect).
+  const pauseImpl = useCallback(() => {
+    if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
+    setSpeaking(false);
+    setLiveConnected(false);
+    startedRef.current = false;
+    const s = sessionRef.current;
+    sessionRef.current = null;
+    s?.stop().catch(() => {});
+  }, []);
+
   useImperativeHandle(
     ref,
-    () => ({ speak: speakImpl, stop: stopImpl, prime: primeImpl }),
-    [speakImpl, stopImpl, primeImpl],
+    () => ({
+      speak: speakImpl,
+      stop: stopImpl,
+      prime: primeImpl,
+      pause: pauseImpl,
+    }),
+    [speakImpl, stopImpl, primeImpl, pauseImpl],
   );
 
   return (

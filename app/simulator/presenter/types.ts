@@ -8,6 +8,8 @@ export interface PresenterHandle {
   stop: () => void;
   // Call from within a user gesture to unlock browser audio.
   prime: () => void;
+  // Tear down the live session (stops billing); prime() re-establishes it.
+  pause: () => void;
 }
 
 export interface PatientPresenterProps {
@@ -19,6 +21,8 @@ export interface PatientPresenterProps {
   onSpeakStart?: () => void;
   onSpeakEnd?: () => void;
   onReady?: () => void; // live avatar stream connected and attached
+  // Live caption text as the avatar speaks it (word-by-word, in sync w/ voice).
+  onCaption?: (text: string) => void;
 }
 
 export function resolveAvatarMode(): AvatarMode {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -10,6 +10,7 @@ import {
   Play,
   Volume2,
   ArrowRight,
+  PauseCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import { ResultsPanel } from "./components/ResultsPanel";
 import { ProviderInput } from "./components/ProviderInput";
 import { NextStepButton } from "./components/NextStepButton";
 import { Aurora } from "../components/Aurora";
+import { ThemeToggle, useSimTheme } from "../components/theme";
 
 // Plain-language guidance shown on the start screen and the "?" help dialog.
 const HOW_IT_WORKS: { icon: typeof Mic; title: string; body: string }[] = [
@@ -56,8 +58,12 @@ const STARTER_QUESTIONS = [
   "Has it changed recently?",
 ];
 
+// Disconnect the (paid, per-minute) live avatar after this much inactivity.
+const IDLE_MS = Number(process.env.NEXT_PUBLIC_AVATAR_IDLE_MS) || 90_000;
+
 export function KioskExperience({ patient }: { patient: PatientCase }) {
   const mode = resolveAvatarMode();
+  const { theme, toggle } = useSimTheme();
   const [stage, setStage] = useState<Stage>("history");
   const [thinking, setThinking] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -70,6 +76,8 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
   // In live-avatar mode, hold input until the stream is connected so a question
   // asked during "Connecting…" isn't lost (repeat() needs a ready session).
   const [avatarReady, setAvatarReady] = useState(mode !== "liveavatar");
+  // Live avatar disconnected after inactivity to stop per-minute billing.
+  const [paused, setPaused] = useState(false);
 
   const presenterRef = useRef<PresenterHandle>(null);
   // Conversation context lives in a ref so async callbacks (mic submit) always
@@ -79,6 +87,38 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
   stageRef.current = stage;
   const busyRef = useRef(false);
   busyRef.current = thinking || speaking;
+  const idleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pausedRef = useRef(false);
+  pausedRef.current = paused;
+
+  // Idle auto-disconnect (live avatar only) — stops per-minute billing when the
+  // encounter is left untouched. Re-armed on every interaction.
+  const armIdle = useCallback(() => {
+    if (mode !== "liveavatar") return;
+    if (idleRef.current) clearTimeout(idleRef.current);
+    idleRef.current = setTimeout(function tick() {
+      // Don't pause mid-thought/mid-speech — re-check shortly instead.
+      if (busyRef.current || pausedRef.current) {
+        idleRef.current = setTimeout(tick, 15_000);
+        return;
+      }
+      presenterRef.current?.pause();
+      setPaused(true);
+      setAvatarReady(false);
+    }, IDLE_MS);
+  }, [mode]);
+
+  const resume = useCallback(() => {
+    setPaused(false);
+    presenterRef.current?.prime(); // reconnect within the user gesture
+    armIdle();
+  }, [armIdle]);
+
+  useEffect(() => {
+    return () => {
+      if (idleRef.current) clearTimeout(idleRef.current);
+    };
+  }, []);
 
   const streamReply = useCallback(
     async (history: SimChatMessage[]) => {
@@ -119,7 +159,10 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
                 | { type: string };
               if (evt.type === "delta") {
                 assembled += (evt as { text: string }).text;
-                setCaption(assembled); // stream the words onto the screen live
+                // In live-avatar mode the caption is driven by the avatar's own
+                // word-by-word transcript (synced to its voice), so don't show
+                // the model's text early. Static mode streams it here.
+                if (mode !== "liveavatar") setCaption(assembled);
               } else if (evt.type === "error")
                 throw new Error((evt as { message: string }).message);
             } catch (e) {
@@ -135,20 +178,32 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
       }
 
       const reply = assembled.trim();
-      setThinking(false);
-      if (reply) {
-        messagesRef.current = [...messagesRef.current, { role: "assistant", text: reply }];
+      if (!reply) {
+        setThinking(false);
+        return;
+      }
+      messagesRef.current = [
+        ...messagesRef.current,
+        { role: "assistant", text: reply },
+      ];
+      if (mode === "liveavatar") {
+        // Keep the "thinking" dots until the avatar actually starts talking;
+        // the caption then types out in sync with its voice (onCaption).
+        presenterRef.current?.speak(reply);
+      } else {
+        setThinking(false);
         setCaption(reply);
-        presenterRef.current?.speak(reply); // voice only — caption already shown
+        presenterRef.current?.speak(reply);
       }
     },
-    [patient.id],
+    [patient.id, mode],
   );
 
   // Started by a tap so the browser allows audio and the greeting can be spoken.
   const begin = useCallback(() => {
     setStarted(true);
     presenterRef.current?.prime();
+    armIdle();
     if (mode === "liveavatar") {
       // The live avatar speaks its own opening line once connected, so skip our
       // opener — otherwise the caption text appears before the avatar loads.
@@ -161,38 +216,46 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
     };
     messagesRef.current = [opener];
     void streamReply([opener]);
-  }, [streamReply, mode]);
+  }, [streamReply, mode, armIdle]);
 
   const askQuestion = useCallback(
     (text: string) => {
       if (busyRef.current) return;
       setHasAsked(true);
+      armIdle();
       presenterRef.current?.stop();
       const userMsg: SimChatMessage = { role: "user", text };
       const history = [...messagesRef.current, userMsg];
       messagesRef.current = history;
       void streamReply(history);
     },
-    [streamReply],
+    [streamReply, armIdle],
   );
 
-  const advanceTo = useCallback((next: Stage) => {
-    setStage(next);
-    // Surface newly unlocked clinical data automatically.
-    if (isUnlocked("exam", next)) setPanelOpen(true);
-  }, []);
+  const advanceTo = useCallback(
+    (next: Stage) => {
+      setStage(next);
+      armIdle();
+      // Surface newly unlocked clinical data automatically.
+      if (isUnlocked("exam", next)) setPanelOpen(true);
+    },
+    [armIdle],
+  );
 
   const inputBusy = thinking || speaking || !avatarReady;
 
   return (
-    <div className="relative flex h-dvh flex-col overflow-hidden text-white">
+    <div
+      data-sim-theme={theme}
+      className="sim-fg relative flex h-dvh flex-col overflow-hidden"
+    >
       <Aurora />
 
       {/* Top bar */}
-      <header className="glass-panel z-20 flex items-center justify-between gap-[clamp(0.5rem,1.5vw,2rem)] border-x-0 border-t-0 px-[clamp(0.75rem,2.5vw,2.5rem)] py-[clamp(0.6rem,1.2vh,1.25rem)]">
+      <header className="glass-panel z-20 flex items-center justify-between gap-[clamp(0.5rem,1.5vw,2rem)] border-x-0 border-t-0 px-[clamp(0.75rem,2.5vw,2.5rem)] py-[clamp(0.5rem,1.2vh,1.25rem)]">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[clamp(0.8rem,1vw,1.1rem)] text-white/65 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+          className="sim-link flex min-h-[2.75rem] shrink-0 items-center gap-1 rounded-full px-3 text-[clamp(0.8rem,1vw,1.1rem)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
         >
           <ChevronLeft className="h-[1.1em] w-[1.1em]" />
           <span className="hidden sm:inline">Cases</span>
@@ -201,16 +264,19 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
         <StageRail current={stage} />
 
         <div className="flex shrink-0 items-center gap-[clamp(0.25rem,0.6vw,0.75rem)]">
+          <ThemeToggle theme={theme} onToggle={toggle} />
           <button
             onClick={() => setHelpOpen(true)}
-            className="flex items-center gap-2 rounded-full px-[clamp(0.6rem,1vw,1rem)] py-[clamp(0.4rem,0.8vh,0.7rem)] text-[clamp(0.78rem,0.95vw,1.05rem)] text-white/70 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+            aria-label="How it works"
+            className="sim-link flex min-h-[2.75rem] items-center gap-2 rounded-full px-[clamp(0.6rem,1vw,1rem)] text-[clamp(0.78rem,0.95vw,1.05rem)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
           >
             <HelpCircle className="h-[1.1em] w-[1.1em]" />
             <span className="hidden md:inline">How it works</span>
           </button>
           <button
             onClick={() => setPanelOpen(true)}
-            className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-[clamp(0.7rem,1.1vw,1.2rem)] py-[clamp(0.4rem,0.8vh,0.7rem)] text-[clamp(0.78rem,0.95vw,1.05rem)] font-medium text-white transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+            aria-label="Open clinical chart"
+            className="sim-chip flex min-h-[2.75rem] items-center gap-2 rounded-full px-[clamp(0.7rem,1.1vw,1.2rem)] text-[clamp(0.78rem,0.95vw,1.05rem)] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
           >
             <FileText className="h-[1.1em] w-[1.1em]" />
             <span className="hidden sm:inline">Chart</span>
@@ -228,20 +294,28 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
           thinking={thinking}
           listening={listening}
           onSpeakStart={() => setSpeaking(true)}
-          onSpeakEnd={() => setSpeaking(false)}
+          onSpeakEnd={() => {
+            setSpeaking(false);
+            setThinking(false);
+            armIdle(); // start the idle countdown once the patient stops talking
+          }}
           onReady={() => setAvatarReady(true)}
+          onCaption={(t) => {
+            setCaption(t);
+            if (t) setThinking(false); // first words arrived → drop the dots
+          }}
         />
 
         {!started && (
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-[clamp(1.25rem,3vh,2.5rem)] overflow-y-auto bg-[#070a16]/85 px-[clamp(1rem,4vw,3rem)] py-[clamp(1.5rem,4vh,4rem)] text-white backdrop-blur-md">
+          <div className="sim-scrim sim-fg absolute inset-0 z-30 flex flex-col items-center justify-center gap-[clamp(1.25rem,3vh,2.5rem)] overflow-y-auto px-[clamp(1rem,4vw,3rem)] py-[clamp(1.5rem,4vh,4rem)] backdrop-blur-md">
             <div className="text-center">
-              <div className="text-[clamp(0.65rem,0.9vw,1rem)] font-medium uppercase tracking-[0.22em] text-teal-300/90">
+              <div className="sim-accent text-[clamp(0.65rem,0.9vw,1rem)] font-medium uppercase tracking-[0.22em]">
                 You&apos;re about to interview
               </div>
               <div className="mt-1 font-heading text-[clamp(2rem,4vw,4.5rem)] font-semibold leading-[1.05]">
                 {patient.demographics.name}
               </div>
-              <div className="text-[clamp(0.9rem,1.1vw,1.4rem)] text-white/60">
+              <div className="sim-muted text-[clamp(0.9rem,1.1vw,1.4rem)]">
                 {patient.demographics.age} · {patient.demographics.sex} ·{" "}
                 {patient.title}
               </div>
@@ -259,7 +333,7 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
                   <div className="text-[clamp(0.85rem,1vw,1.15rem)] font-semibold">
                     {title}
                   </div>
-                  <div className="text-[clamp(0.75rem,0.9vw,1.05rem)] leading-relaxed text-white/60">
+                  <div className="sim-muted text-[clamp(0.75rem,0.9vw,1.05rem)] leading-relaxed">
                     {body}
                   </div>
                 </div>
@@ -268,15 +342,37 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
 
             <button
               onClick={begin}
-              className="aurora-fill aurora-ring group flex items-center gap-3 rounded-full px-[clamp(1.5rem,2.5vw,3rem)] py-[clamp(0.8rem,1.4vh,1.4rem)] text-[clamp(1rem,1.4vw,1.6rem)] font-semibold text-white transition hover:brightness-110 active:translate-y-px focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
+              className="aurora-fill aurora-ring group flex min-h-[2.75rem] items-center gap-3 rounded-full px-[clamp(1.5rem,2.5vw,3rem)] py-[clamp(0.8rem,1.4vh,1.4rem)] text-[clamp(1rem,1.4vw,1.6rem)] font-semibold text-white transition hover:brightness-110 active:translate-y-px focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
             >
               <Play className="h-[1.1em] w-[1.1em] fill-current" />
               Begin encounter
             </button>
-            <p className="flex items-center gap-1.5 text-[clamp(0.7rem,0.85vw,0.95rem)] text-white/50">
+            <p className="sim-subtle flex items-center gap-1.5 text-[clamp(0.7rem,0.85vw,0.95rem)]">
               <Volume2 className="h-[1.1em] w-[1.1em]" />
               Tapping start enables the patient&apos;s voice
             </p>
+          </div>
+        )}
+
+        {started && paused && (
+          <div className="sim-scrim sim-fg absolute inset-0 z-30 flex flex-col items-center justify-center gap-[clamp(1rem,2.5vh,2rem)] px-[clamp(1rem,4vw,3rem)] py-[clamp(1.5rem,4vh,4rem)] text-center backdrop-blur-md">
+            <PauseCircle className="sim-accent h-[clamp(2.5rem,4vw,4rem)] w-[clamp(2.5rem,4vw,4rem)]" />
+            <div>
+              <div className="font-heading text-[clamp(1.4rem,2.6vw,2.6rem)] font-semibold">
+                Session paused
+              </div>
+              <p className="sim-muted mt-1 max-w-[40ch] text-[clamp(0.85rem,1.1vw,1.25rem)]">
+                We disconnected the live patient after a period of inactivity to
+                save credits.
+              </p>
+            </div>
+            <button
+              onClick={resume}
+              className="aurora-fill aurora-ring group flex min-h-[2.75rem] items-center gap-3 rounded-full px-[clamp(1.5rem,2.5vw,3rem)] py-[clamp(0.8rem,1.4vh,1.4rem)] text-[clamp(1rem,1.4vw,1.6rem)] font-semibold text-white transition hover:brightness-110 active:translate-y-px focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40"
+            >
+              <Play className="h-[1.1em] w-[1.1em] fill-current" />
+              Tap to resume
+            </button>
           </div>
         )}
       </main>
@@ -286,7 +382,7 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
         <div className="mx-auto w-full max-w-[min(94vw,1500px)] px-[clamp(0.75rem,2.5vw,2.5rem)] py-[clamp(0.7rem,1.5vh,1.5rem)]">
           {started && !hasAsked && !inputBusy && (
             <div className="mb-[clamp(0.6rem,1vh,1rem)]">
-              <div className="mb-1.5 text-[clamp(0.7rem,0.85vw,0.95rem)] text-white/50">
+              <div className="sim-subtle mb-1.5 text-[clamp(0.7rem,0.85vw,0.95rem)]">
                 Try asking — tap one, or use the mic / type your own:
               </div>
               <div className="flex flex-wrap gap-[clamp(0.4rem,0.6vw,0.75rem)]">
@@ -294,7 +390,7 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
                   <button
                     key={q}
                     onClick={() => askQuestion(q)}
-                    className="rounded-full border border-white/15 bg-white/10 px-[clamp(0.75rem,1vw,1.25rem)] py-[clamp(0.4rem,0.7vh,0.65rem)] text-[clamp(0.8rem,0.95vw,1.1rem)] text-white/85 transition hover:border-teal-300/50 hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70"
+                    className="sim-chip rounded-full px-[clamp(0.75rem,1vw,1.25rem)] py-[clamp(0.4rem,0.7vh,0.65rem)] text-[clamp(0.8rem,0.95vw,1.1rem)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
                   >
                     {q}
                   </button>
@@ -307,7 +403,10 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
               <ProviderInput
                 disabled={!started || inputBusy}
                 onSubmit={askQuestion}
-                onListeningChange={setListening}
+                onListeningChange={(l) => {
+                  setListening(l);
+                  if (l) armIdle();
+                }}
               />
             </div>
             <NextStepButton current={stage} onAdvance={advanceTo} />

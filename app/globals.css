@@ -166,8 +166,61 @@
 
 :root {
   --grad-aurora: linear-gradient(135deg, #2dd4bf 0%, #6366f1 48%, #a855f7 100%);
-  --grad-aurora-soft: linear-gradient(135deg, #5eead4 0%, #818cf8 50%, #c084fc 100%);
 }
+
+/* Theme tokens ------------------------------------------------------------- */
+/* Aurora (vibrant dark) — the default */
+[data-sim-theme="aurora"],
+[data-sim-theme] {
+  --sim-fg: #ffffff;
+  --sim-muted: rgba(255, 255, 255, 0.66);
+  --sim-subtle: rgba(255, 255, 255, 0.5);
+  --sim-border: rgba(255, 255, 255, 0.16);
+  --sim-surface: rgba(255, 255, 255, 0.1);
+  --sim-surface-hover: rgba(255, 255, 255, 0.2);
+  --sim-accent: #5eead4;
+  --sim-aurora-bg: radial-gradient(120% 120% at 50% -10%, #131a36 0%, #0a0e20 55%, #070a16 100%);
+  --sim-glass-panel: rgba(12, 17, 38, 0.55);
+  --sim-glass-card: rgba(255, 255, 255, 0.08);
+  --sim-aurora-text: linear-gradient(135deg, #5eead4 0%, #818cf8 50%, #c084fc 100%);
+  --sim-grid: rgba(255, 255, 255, 0.04);
+  --sim-blob-opacity: 0.55;
+  --sim-scrim: rgba(7, 10, 22, 0.85);
+}
+/* Clinical (calm light) */
+[data-sim-theme="clinical"] {
+  --sim-fg: #0f172a;
+  --sim-muted: #475569;
+  --sim-subtle: #64748b;
+  --sim-border: rgba(15, 23, 42, 0.1);
+  --sim-surface: rgba(15, 23, 42, 0.04);
+  --sim-surface-hover: rgba(15, 23, 42, 0.08);
+  --sim-accent: #0d9488;
+  --sim-aurora-bg: radial-gradient(120% 120% at 50% -10%, #ffffff 0%, #eef3f9 55%, #e3eaf3 100%);
+  --sim-glass-panel: rgba(255, 255, 255, 0.78);
+  --sim-glass-card: rgba(255, 255, 255, 0.7);
+  --sim-aurora-text: linear-gradient(135deg, #0d9488 0%, #4f46e5 50%, #7c3aed 100%);
+  --sim-grid: rgba(15, 23, 42, 0.05);
+  --sim-blob-opacity: 0.2;
+  --sim-scrim: rgba(239, 243, 249, 0.9);
+}
+
+/* Semantic helpers (theme-driven) */
+.sim-fg { color: var(--sim-fg); }
+.sim-muted { color: var(--sim-muted); }
+.sim-subtle { color: var(--sim-subtle); }
+.sim-accent { color: var(--sim-accent); }
+.sim-border { border-color: var(--sim-border); }
+.sim-surface { background: var(--sim-surface); }
+.sim-chip {
+  background: var(--sim-surface);
+  border: 1px solid var(--sim-border);
+  color: var(--sim-fg);
+}
+.sim-chip:hover { background: var(--sim-surface-hover); }
+.sim-link { color: var(--sim-muted); }
+.sim-link:hover { color: var(--sim-fg); background: var(--sim-surface); }
+.sim-scrim { background: var(--sim-scrim); }
 
 /* Aurora backdrop ---------------------------------------------------------- */
 .sim-aurora {
@@ -175,22 +228,21 @@
   inset: 0;
   z-index: -10;
   overflow: hidden;
-  background:
-    radial-gradient(120% 120% at 50% -10%, #131a36 0%, #0a0e20 55%, #070a16 100%);
+  background: var(--sim-aurora-bg);
 }
 .sim-aurora__blob {
   position: absolute;
   border-radius: 9999px;
   filter: blur(90px);
-  opacity: 0.55;
+  opacity: var(--sim-blob-opacity);
   will-change: transform;
 }
 .sim-aurora__grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(var(--sim-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--sim-grid) 1px, transparent 1px);
   background-size: clamp(28px, 4vw, 72px) clamp(28px, 4vw, 72px);
   mask-image: radial-gradient(120% 90% at 50% 0%, #000 35%, transparent 80%);
 }
@@ -213,16 +265,16 @@
 
 /* Glass surfaces ----------------------------------------------------------- */
 .glass-panel {
-  background: rgba(12, 17, 38, 0.55);
+  background: var(--sim-glass-panel);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid var(--sim-border);
 }
 .glass-card {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--sim-glass-card);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--sim-border);
 }
 /* High-readability frosted surface (dark text) for captions, charts, content */
 .glass-bright {
@@ -234,7 +286,7 @@
 
 /* Accents ------------------------------------------------------------------ */
 .aurora-text {
-  background: var(--grad-aurora-soft);
+  background: var(--sim-aurora-text);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
