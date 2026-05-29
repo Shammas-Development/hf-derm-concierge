@@ -56,9 +56,27 @@ export function useSpeech() {
       if (v) u.voice = v;
       u.rate = 1;
       u.pitch = 1;
+
+      // Guarantee the "end" callback fires exactly once. Some browsers (and
+      // headless environments) never emit onend, which would otherwise leave
+      // the UI stuck in the "speaking" state and disable input forever.
+      let ended = false;
+      const finish = () => {
+        if (ended) return;
+        ended = true;
+        opts.onEnd?.();
+      };
+      const words = text.trim().split(/\s+/).length;
+      const safetyMs = Math.min(60000, 2000 + words * 400);
+      const timer = setTimeout(finish, safetyMs);
+      const done = () => {
+        clearTimeout(timer);
+        finish();
+      };
+
       u.onstart = () => opts.onStart?.();
-      u.onend = () => opts.onEnd?.();
-      u.onerror = () => opts.onEnd?.();
+      u.onend = done;
+      u.onerror = done;
       u.onboundary = (e) => {
         if (e.name === "word" || e.charIndex != null) opts.onWord?.(e.charIndex);
       };

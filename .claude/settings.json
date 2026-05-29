@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -o \"You.\\\\{0,6\\\\}about to interview\" /tmp/case.html)"
+      "Bash(grep -o \"You.\\\\{0,6\\\\}about to interview\" /tmp/case.html)",
+      "Bash(curl -s -o /dev/null http://localhost:11434/)",
+      "Bash(curl -s -o /dev/null http://localhost:3007/)",
+      "Bash(node /tmp/shots.mjs)",
+      "Bash(node ./_shots.mjs)",
+      "WebSearch",
+      "WebFetch(domain:www.heygen.com)",
+      "WebFetch(domain:docs.liveavatar.com)",
+      "Bash(python3 -c 'import sys,json *)",
+      "Bash(python3 -c 'import sys,json,re *)"
     ]
   }
 }
