@@ -151,7 +151,7 @@ export function PatientStage({
         </AnimatePresence>
       </div>
 
-      {notice && mode === "heygen" && (
+      {notice && (mode === "heygen" || mode === "liveavatar") && (
         <p className="text-xs text-muted-foreground">{notice}</p>
       )}
     </div>

@@ -22,6 +22,11 @@ export const marcusMelanoma: PatientCase = {
   // heygenAvatarId: set when the HeyGen avatar is provisioned
   voiceHint:
     "Middle-aged American man, warm but a little anxious, plain-spoken.",
+  liveAvatar: {
+    avatarId: "7b888024-f8c9-4205-95e1-78ce01497bda", // Shawn Therapist
+    voiceId: "51afbab6-7af4-473b-95fc-6ce26aac8bb1", // Shawn - IA
+    contextId: "ea6c4e0d-cc15-44d5-ab6a-2838abf06198", // Marcus persona
+  },
 
   personaNotes: `You are Marcus Bennett, a 58-year-old landscaper. You are friendly and cooperative but quietly worried — your wife pushed you to come in. You speak plainly, in short everyday sentences, and you don't use medical jargon. You get a little nervous when the conversation turns to cancer. You answer what you're asked and don't volunteer the whole story at once.`,
 

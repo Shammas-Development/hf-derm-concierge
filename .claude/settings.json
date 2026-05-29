@@ -10,7 +10,9 @@
       "WebFetch(domain:www.heygen.com)",
       "WebFetch(domain:docs.liveavatar.com)",
       "Bash(python3 -c 'import sys,json *)",
-      "Bash(python3 -c 'import sys,json,re *)"
+      "Bash(python3 -c 'import sys,json,re *)",
+      "Bash(grep -iE \"apps/demo|packages|README|route|token|\\\\.ts$|\\\\.tsx$\")",
+      "Bash(grep -iE \"\\\\.tsx?$|README|\\\\.env\")"
     ]
   }
 }

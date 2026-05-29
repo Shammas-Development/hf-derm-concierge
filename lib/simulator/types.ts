@@ -47,6 +47,14 @@ export interface PatientCase {
   heygenAvatarId?: string; // live avatar id (used when avatar mode = heygen)
   voiceHint?: string; // plain-language voice description (age/tone/accent)
 
+  // LiveAvatar (HeyGen real-time) — used when avatar mode = "liveavatar".
+  // The avatar renders the face + voice; our AI still drives the words.
+  liveAvatar?: {
+    avatarId: string;
+    voiceId?: string;
+    contextId: string; // required by the session API; unused in repeat mode
+  };
+
   // How the patient talks — drives the AI persona
   personaNotes: string;
 

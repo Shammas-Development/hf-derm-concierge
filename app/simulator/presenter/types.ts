@@ -1,6 +1,6 @@
 import type { PatientCase } from "@/lib/simulator/types";
 
-export type AvatarMode = "static" | "heygen";
+export type AvatarMode = "static" | "heygen" | "liveavatar";
 
 // Imperative handle the kiosk uses to make the patient speak.
 export interface PresenterHandle {
@@ -21,9 +21,10 @@ export interface PatientPresenterProps {
 }
 
 export function resolveAvatarMode(): AvatarMode {
-  return (process.env.NEXT_PUBLIC_AVATAR_MODE ?? "static") === "heygen"
-    ? "heygen"
-    : "static";
+  const m = process.env.NEXT_PUBLIC_AVATAR_MODE ?? "static";
+  if (m === "liveavatar") return "liveavatar";
+  if (m === "heygen") return "heygen";
+  return "static";
 }
 
 export type { PatientCase };
