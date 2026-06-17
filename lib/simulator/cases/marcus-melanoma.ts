@@ -1,8 +1,16 @@
 import type { PatientCase } from "../types";
+import resolved from "./marcus-melanoma.resolved.json";
 
 // ILLUSTRATIVE SAMPLE CASE — replace with client-supplied clinical content.
 // A classic "don't miss" dermatology teaching case: a changing pigmented
 // lesion worked up to invasive melanoma across all five encounter stages.
+
+// LiveAvatar avatar_id — created manually in https://app.liveavatar.com
+// (custom Photo Avatar from the generated portrait, or any preset). The
+// generation script auto-resolves voiceId / contextId / portraitUrl into
+// ./marcus-melanoma.resolved.json.
+const AVATAR_ID = "7b888024-f8c9-4205-95e1-78ce01497bda"; // Shawn Therapist (preset)
+
 export const marcusMelanoma: PatientCase = {
   id: "marcus-melanoma",
   title: "Changing mole",
@@ -16,16 +24,17 @@ export const marcusMelanoma: PatientCase = {
     pronouns: "he/him",
     occupation: "Landscaper",
     fitzpatrick: "II",
+    appearance:
+      "short greying brown hair, weathered outdoor complexion, light stubble, sturdy build",
   },
 
-  portraitUrl: "/simulator/portraits/placeholder.svg",
-  // heygenAvatarId: set when the HeyGen avatar is provisioned
+  portraitUrl: resolved.portraitUrl,
   voiceHint:
     "Middle-aged American man, warm but a little anxious, plain-spoken.",
   liveAvatar: {
-    avatarId: "7b888024-f8c9-4205-95e1-78ce01497bda", // Shawn Therapist
-    voiceId: "51afbab6-7af4-473b-95fc-6ce26aac8bb1", // Shawn - IA
-    contextId: "ea6c4e0d-cc15-44d5-ab6a-2838abf06198", // Marcus persona
+    avatarId: AVATAR_ID,
+    voiceId: resolved.voiceId,
+    contextId: resolved.contextId,
   },
 
   personaNotes: `You are Marcus Bennett, a 58-year-old landscaper. You are friendly and cooperative but quietly worried — your wife pushed you to come in. You speak plainly, in short everyday sentences, and you don't use medical jargon. You get a little nervous when the conversation turns to cancer. You answer what you're asked and don't volunteer the whole story at once.`,

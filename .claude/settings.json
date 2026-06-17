@@ -16,7 +16,16 @@
       "Bash(curl -s -o /dev/null http://localhost:3009/)",
       "Bash(node ./_shots2.mjs)",
       "Bash(curl -s -o /dev/null -w '%{http_code}' http://localhost:3009/)",
-      "Bash(echo \"3009 status: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3009/ 2>/dev/null\\)\")"
+      "Bash(echo \"3009 status: $\\(curl -s -o /dev/null -w '%{http_code}' http://localhost:3009/ 2>/dev/null\\)\")",
+      "WebFetch(domain:developers.heygen.com)",
+      "Bash(AVATAR_SOURCE=image npm run generate-patient -- marcus-melanoma)",
+      "Bash(grep -vE \"^>|^$|injected env\")",
+      "Bash(AVATAR_SOURCE=heygen npm run generate-patient -- marcus-melanoma --force-source)",
+      "Bash(grep -vE \"^>|^$|injected env|^    at \")",
+      "Bash(cd /Users/muhammadhassannaeem/Desktop/hf-derm-concierge *)"
+    ],
+    "additionalDirectories": [
+      "/Users/muhammadhassannaeem/Desktop/hf-derm-concierge/public/simulator/portraits"
     ]
   }
 }

@@ -17,6 +17,7 @@ export interface BiopsyResult {
   gross?: string;
   microscopic: string;
   findings: string[]; // key bulleted findings (Breslow, margins, etc.)
+  imageUrl?: string; // optional histopathology image shown in the chart
 }
 
 export interface ExamFinding {
@@ -32,6 +33,9 @@ export interface PatientDemographics {
   occupation?: string;
   fitzpatrick?: string;
   pronouns?: string;
+  // Free-text appearance hint used by the portrait generator (hair, build,
+  // weathering, etc.). Never include skin lesions or anything clinical here.
+  appearance?: string;
 }
 
 export interface PatientCase {
@@ -76,6 +80,10 @@ export interface PatientCase {
   };
   labs: LabResult[];
   biopsy?: BiopsyResult;
+  // Optional clinical photos (lesion, dermatoscopy, etc.) shown in the chart's
+  // exam section. The Chart is the ONLY surface for clinical body imagery —
+  // these never render on the avatar.
+  clinicalPhotos?: { caption: string; src: string }[];
   diagnosis: {
     primary: string;
     staging?: string;
