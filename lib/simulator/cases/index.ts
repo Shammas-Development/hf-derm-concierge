@@ -1,8 +1,8 @@
 import type { PatientCase } from "../types";
-import { marcusMelanoma } from "./marcus-melanoma";
+import { margaretMelanoma } from "./margaret-melanoma";
 
 // Register patient cases here. Add a new file under cases/ and append it.
-const CASES: PatientCase[] = [marcusMelanoma];
+const CASES: PatientCase[] = [margaretMelanoma];
 
 export function listCases(): PatientCase[] {
   return CASES;

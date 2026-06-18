@@ -1,5 +1,5 @@
 import type { PatientCase } from "../types";
-import resolved from "./marcus-melanoma.resolved.json";
+import resolved from "./margaret-melanoma.resolved.json";
 
 // ILLUSTRATIVE SAMPLE CASE — replace with client-supplied clinical content.
 // A classic "don't miss" dermatology teaching case: a changing pigmented
@@ -8,36 +8,36 @@ import resolved from "./marcus-melanoma.resolved.json";
 // LiveAvatar avatar_id — created manually in https://app.liveavatar.com
 // (custom Photo Avatar from the generated portrait, or any preset). The
 // generation script auto-resolves voiceId / contextId / portraitUrl into
-// ./marcus-melanoma.resolved.json.
+// ./margaret-melanoma.resolved.json.
 const AVATAR_ID = "5254ca3e-e8f1-49f3-b079-a38ce51b017b"; // custom patient avatar (LiveAvatar dashboard)
 
-export const marcusMelanoma: PatientCase = {
-  id: "marcus-melanoma",
+export const margaretMelanoma: PatientCase = {
+  id: "margaret-melanoma",
   title: "Changing mole",
   specialty: "Dermatology",
   difficulty: "intermediate",
 
   demographics: {
-    name: "Marcus Bennett",
+    name: "Margaret Bennett",
     age: 58,
-    sex: "Male",
-    pronouns: "he/him",
+    sex: "Female",
+    pronouns: "she/her",
     occupation: "Landscaper",
     fitzpatrick: "II",
     appearance:
-      "short greying brown hair, weathered outdoor complexion, light stubble, sturdy build",
+      "shoulder-length light brown hair with subtle silver streaks, fair complexion, soft warm features, gentle composure",
   },
 
   portraitUrl: resolved.portraitUrl,
   voiceHint:
-    "Middle-aged American man, warm but a little anxious, plain-spoken.",
+    "Middle-aged American woman, warm but a little anxious, plain-spoken.",
   liveAvatar: {
     avatarId: AVATAR_ID,
     voiceId: resolved.voiceId,
     contextId: resolved.contextId,
   },
 
-  personaNotes: `You are Marcus Bennett, a 58-year-old landscaper. You are friendly and cooperative but quietly worried — your wife pushed you to come in. You speak plainly, in short everyday sentences, and you don't use medical jargon. You get a little nervous when the conversation turns to cancer. You answer what you're asked and don't volunteer the whole story at once.`,
+  personaNotes: `You are Margaret Bennett, a 58-year-old landscaper. You are friendly and cooperative but quietly worried — your husband pushed you to come in. You speak plainly, in short everyday sentences, and you don't use medical jargon. You get a little nervous when the conversation turns to cancer. You answer what you're asked and don't volunteer the whole story at once.`,
 
   chiefComplaint:
     "A mole on my upper back has been changing — it's gotten bigger and darker over the last few months.",
@@ -50,7 +50,7 @@ export const marcusMelanoma: PatientCase = {
     social: [
       "Works outdoors year-round, lots of sun exposure",
       "Rarely uses sunscreen",
-      "History of several blistering sunburns as a young man",
+      "History of several blistering sunburns as a young woman",
       "Former smoker, quit 10 years ago",
       "Drinks socially",
     ],
@@ -60,14 +60,14 @@ export const marcusMelanoma: PatientCase = {
     ],
     ros: [
       "No weight loss, fevers, or night sweats",
-      "No new lumps that he has noticed",
+      "No new lumps that she has noticed",
       "Energy normal",
     ],
   },
 
   exam: {
     summary:
-      "Fair-skinned man in no distress. Skin exam focused on a pigmented lesion of the left upper back, with scattered benign-appearing nevi elsewhere.",
+      "Fair-skinned woman in no distress. Skin exam focused on a pigmented lesion of the left upper back, with scattered benign-appearing nevi elsewhere.",
     findings: [
       {
         region: "Left upper back",

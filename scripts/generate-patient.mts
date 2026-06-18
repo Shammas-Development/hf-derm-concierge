@@ -54,7 +54,7 @@ const indexPath = path.join(repoRoot, "lib/simulator/cases", "index.ts");
 
 if (!existsSync(specPath)) {
   console.error(`✗ Spec not found: ${path.relative(repoRoot, specPath)}`);
-  console.error("  Copy lib/simulator/cases/marcus-melanoma.ts as a template,");
+  console.error("  Copy lib/simulator/cases/margaret-melanoma.ts as a template,");
   console.error("  rename the id, then re-run this script.");
   process.exit(1);
 }

@@ -29,7 +29,7 @@ The simulator runs at `/` (case picker) and `/simulator/<case-id>` (kiosk).
 The pipeline is `one spec file → one script → it appears in the case list`.
 
 ### 1. Author the spec
-Copy [`lib/simulator/cases/marcus-melanoma.ts`](lib/simulator/cases/marcus-melanoma.ts)
+Copy [`lib/simulator/cases/margaret-melanoma.ts`](lib/simulator/cases/margaret-melanoma.ts)
 as a template and rename it `<new-id>.ts`. Fill in:
 
 - `id` (matches the filename), `title`, `specialty`, `difficulty`
