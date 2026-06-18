@@ -9,7 +9,7 @@ import resolved from "./marcus-melanoma.resolved.json";
 // (custom Photo Avatar from the generated portrait, or any preset). The
 // generation script auto-resolves voiceId / contextId / portraitUrl into
 // ./marcus-melanoma.resolved.json.
-const AVATAR_ID = "7b888024-f8c9-4205-95e1-78ce01497bda"; // Shawn Therapist (preset)
+const AVATAR_ID = "5254ca3e-e8f1-49f3-b079-a38ce51b017b"; // custom patient avatar (LiveAvatar dashboard)
 
 export const marcusMelanoma: PatientCase = {
   id: "marcus-melanoma",

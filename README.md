@@ -50,7 +50,7 @@ What it does (all idempotent — safe to re-run):
    - `AVATAR_SOURCE=heygen` (default): `POST https://api.heygen.com/v3/avatars`
      with the locked text prompt → downloads the resulting image.
    - `AVATAR_SOURCE=image`: external image provider (Replicate / OpenAI).
-   Either way, writes `public/simulator/portraits/<id>.jpg`.
+   Either way, writes `public/simulator/portraits/<id>.png`.
 2. **Voice** — `GET /v1/voices` → picks a standard male/female voice from the
    LiveAvatar library by `demographics.sex` (override in spec by setting
    `liveAvatar.voiceId`).
@@ -66,7 +66,7 @@ the talking face is created in the dashboard:
 
 1. Go to [app.liveavatar.com](https://app.liveavatar.com) → **Avatars** →
    **Create new avatar**.
-2. Upload the generated `public/simulator/portraits/<id>.jpg`.
+2. Upload the generated `public/simulator/portraits/<id>.png`.
 3. Copy the new `avatar_id`.
 4. Paste it as `AVATAR_ID` at the top of `lib/simulator/cases/<id>.ts`.
 
@@ -136,6 +136,6 @@ Nothing should ever be hardcoded in source.
 ## Deploying
 
 The app deploys to Vercel as a standard Next.js project. The generation script
-runs **locally**, not at build time — its outputs (`<id>.jpg`,
+runs **locally**, not at build time — its outputs (`<id>.png`,
 `<id>.resolved.json`) are committed to the repo and deployed as static assets
 and code.

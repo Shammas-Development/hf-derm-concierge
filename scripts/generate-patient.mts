@@ -7,7 +7,7 @@
  *
  * For a given spec at lib/simulator/cases/<id>.ts this script (idempotently):
  *   1. Generates a portrait via the configured image provider and writes it
- *      to public/simulator/portraits/<id>.jpg.
+ *      to public/simulator/portraits/<id>.png.
  *   2. Resolves a stock voice_id from LiveAvatar by demographics.sex (or
  *      uses the spec override).
  *   3. Creates a LiveAvatar persona context (the patient's "brain prompt")
@@ -49,7 +49,7 @@ if (!id) {
 
 const specPath = path.join(repoRoot, "lib/simulator/cases", `${id}.ts`);
 const resolvedPath = path.join(repoRoot, "lib/simulator/cases", `${id}.resolved.json`);
-const portraitPath = path.join(repoRoot, "public/simulator/portraits", `${id}.jpg`);
+const portraitPath = path.join(repoRoot, "public/simulator/portraits", `${id}.png`);
 const indexPath = path.join(repoRoot, "lib/simulator/cases", "index.ts");
 
 if (!existsSync(specPath)) {
@@ -119,7 +119,7 @@ if (sourceMismatch && !forceSource) {
   const result = await source.generate(patient);
   mkdirSync(path.dirname(portraitPath), { recursive: true });
   writeFileSync(portraitPath, result.imageBytes);
-  resolved.portraitUrl = `/simulator/portraits/${id}.jpg`;
+  resolved.portraitUrl = `/simulator/portraits/${id}.png`;
   resolved.avatarSource = source.name;
   if (result.heygenPhotoAvatarId) {
     resolved.heygenPhotoAvatarId = result.heygenPhotoAvatarId;
@@ -162,7 +162,7 @@ if (!avatarId) {
   console.log("  LiveAvatar's API does not expose Interactive Avatar creation,");
   console.log("  so the streaming avatar is registered in the dashboard:");
   console.log("  1. open https://app.liveavatar.com (Avatars → Create new avatar)");
-  console.log(`  2. upload public/simulator/portraits/${id}.jpg`);
+  console.log(`  2. upload public/simulator/portraits/${id}.png`);
   console.log("  3. copy the new avatar_id");
   console.log(`  4. paste it as AVATAR_ID at the top of`);
   console.log(`     lib/simulator/cases/${id}.ts`);
