@@ -51,16 +51,16 @@ export function PatientStage({
                 ? "aurora-glow-sky"
                 : "aurora-ring",
           )}
-          style={{ width: "min(78vw, clamp(170px, 30vh, 720px))" }}
+          style={{ width: "min(92vw, min(1600px, calc(60vh * 16 / 9)))" }}
         >
-          <div className="aspect-[4/5] w-full bg-white/5">
+          <div className="aspect-video w-full bg-white/5">
             <video
               ref={videoRef}
               autoPlay
               playsInline
               aria-label={`Live video of ${d.name}, the patient`}
               className={cn(
-                "h-full w-full object-contain",
+                "h-full w-full object-cover",
                 showVideo ? "block" : "hidden",
               )}
             />
@@ -69,7 +69,7 @@ export function PatientStage({
               <img
                 src={patient.portraitUrl}
                 alt={`${d.name}, ${d.age}`}
-                className="h-full w-full object-contain"
+                className="h-full w-full object-cover"
               />
             )}
           </div>
