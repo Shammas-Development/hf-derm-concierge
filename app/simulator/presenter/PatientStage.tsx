@@ -60,7 +60,7 @@ export function PatientStage({
               playsInline
               aria-label={`Live video of ${d.name}, the patient`}
               className={cn(
-                "h-full w-full object-cover",
+                "h-full w-full object-contain",
                 showVideo ? "block" : "hidden",
               )}
             />
@@ -69,7 +69,7 @@ export function PatientStage({
               <img
                 src={patient.portraitUrl}
                 alt={`${d.name}, ${d.age}`}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
               />
             )}
           </div>
