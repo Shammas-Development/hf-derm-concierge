@@ -29,6 +29,7 @@ import { StageRail } from "./components/StageRail";
 import { ResultsPanel } from "./components/ResultsPanel";
 import { ProviderInput } from "./components/ProviderInput";
 import { NextStepButton } from "./components/NextStepButton";
+import { BodyLocationIndicator } from "./components/BodyLocationIndicator";
 import { Aurora } from "../components/Aurora";
 import { ThemeToggle, useSimTheme } from "../components/theme";
 
@@ -286,6 +287,14 @@ export function KioskExperience({ patient }: { patient: PatientCase }) {
 
       {/* Patient stage */}
       <main className="relative flex min-h-0 flex-1 flex-col">
+        {/* Always-visible body-location indicator (top-right). Hidden on
+            phone widths to keep room for the patient + composer. */}
+        {patient.bodyLocation && (
+          <div className="absolute right-[clamp(0.75rem,2vw,2rem)] top-[clamp(0.75rem,1.5vh,1.5rem)] z-10 hidden md:block">
+            <BodyLocationIndicator region={patient.bodyLocation} />
+          </div>
+        )}
+
         <PatientPresenter
           ref={presenterRef}
           patient={patient}

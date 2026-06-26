@@ -97,6 +97,9 @@ export const margaretMelanoma: PatientCase = {
     ],
   },
 
+  // Patient's concern is on the upper back; drives the body-location widget.
+  bodyLocation: "upper-back",
+
   labs: [
     { name: "WBC", value: "6.8 x10⁹/L", reference: "4.0–11.0", flag: "normal" },
     { name: "Hemoglobin", value: "14.6 g/dL", reference: "13.5–17.5", flag: "normal" },

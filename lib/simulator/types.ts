@@ -4,6 +4,16 @@
 
 export type Stage = "history" | "exam" | "labs" | "diagnosis" | "treatment";
 
+// Stylised regions for the body-location indicator. Front/back is decided by
+// the component; left/right is the PATIENT's left/right (clinical convention).
+export type BodyRegion =
+  | "scalp" | "face" | "neck"
+  | "chest" | "abdomen" | "upper-back" | "lower-back"
+  | "shoulder-left" | "shoulder-right"
+  | "arm-left" | "arm-right" | "hand-left" | "hand-right"
+  | "thigh-left" | "thigh-right" | "lower-leg-left" | "lower-leg-right"
+  | "foot-left" | "foot-right";
+
 export interface LabResult {
   name: string;
   value: string;
@@ -84,6 +94,10 @@ export interface PatientCase {
   // exam section. The Chart is the ONLY surface for clinical body imagery —
   // these never render on the avatar.
   clinicalPhotos?: { caption: string; src: string }[];
+  // Approximate body region the patient's concern is on — drives the
+  // always-visible body-location indicator widget. Pure location pointer:
+  // no lesion is ever drawn, just a pulsing marker on a stylized silhouette.
+  bodyLocation?: BodyRegion;
   diagnosis: {
     primary: string;
     staging?: string;
